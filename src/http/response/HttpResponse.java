@@ -35,6 +35,12 @@ public abstract class HttpResponse {
         return content != null ? new String(content) : "";
     }
 
+    public void setContentTypeToImage(){
+        this.contentType = "image/jpeg";
+    }
+    public void setContentTypeToIcon(){
+        this.contentType = "icon";
+    }
     @Override
     public String toString() {
         return getResponseHeader() + getBody();

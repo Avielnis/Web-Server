@@ -7,7 +7,8 @@ public class HTTPClient implements Runnable {
     private TCPServer tcpServer;
     private Socket clientSocket;
     private int port;
-    private PrintWriter out;
+    private PrintWriter textStream;
+    private OutputStream mediaStream;
     private final ServerConfig serverConfig = ServerConfig.getInstance();
 
     public HTTPClient(TCPServer tcpServer, Socket clientSocket) {
@@ -23,7 +24,8 @@ public class HTTPClient implements Runnable {
         try {
             // Determine the request type
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            out = new PrintWriter(clientSocket.getOutputStream(), true);
+            mediaStream = clientSocket.getOutputStream();
+            textStream = new PrintWriter(clientSocket.getOutputStream(), true);
             String requestLine = in.readLine(); // Read the request line GET or POST
             String[] requestParts = requestLine.split(" ");
             System.out.println(requestLine);
@@ -59,14 +61,20 @@ public class HTTPClient implements Runnable {
         }
         File htmlFile = new File(pageFilePath);
         if (! htmlFile.exists()) {
-            out.println(new NotFoundResponse());
+            textStream.println(new NotFoundResponse());
         }
         FileInputStream fileInputStream = new FileInputStream(htmlFile);
         byte[] fileContent = new byte[(int) htmlFile.length()];
         fileInputStream.read(fileContent);
         HttpResponse response = new OkResponse(fileContent);
+
+        if(pagePath.contains("image")){
+           sendImage(response);
+        }
+        else {
+            textStream.println(response);
+        }
         System.out.println(response.getResponseHeader());
-        out.println(response);
     }
 
     private void sendBackPOST(String[] requestParts) throws IOException {
@@ -87,7 +95,11 @@ public class HTTPClient implements Runnable {
         tcpServer.removeClient(this);
 
     }
-
+    private void sendImage(HttpResponse response) throws IOException{
+        response.setContentTypeToImage();
+        mediaStream.write(response.getResponseHeader().getBytes());
+        mediaStream.write(response.getContent());
+    }
     public Socket getClientSocket() {
         return clientSocket;
     }
