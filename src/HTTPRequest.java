@@ -23,7 +23,7 @@ public class HTTPRequest {
 
         // First line contains the request type and requested page
         String[] firstLineParts = lines[0].split(" ");
-        httpVersion = firstLineParts[firstLineParts.length-1];
+        httpVersion = firstLineParts[firstLineParts.length - 1];
         if (firstLineParts.length >= 2) {
             type = firstLineParts[0];
             // Extract the requested page portion without parameters
@@ -52,8 +52,9 @@ public class HTTPRequest {
         parameters = new HashMap<>();
         String requestLine = lines[0];
         int paramIndex = requestLine.indexOf('?');
-        if (paramIndex != -1) {
+        if (paramIndex != - 1) {
             String paramString = requestLine.substring(paramIndex + 1);
+            paramString = paramString.substring(0, paramString.indexOf(' '));
             String[] paramPairs = paramString.split("&");
             for (String paramPair : paramPairs) {
                 String[] keyValue = paramPair.split("=");
@@ -72,6 +73,7 @@ public class HTTPRequest {
     public String getRequestHeader() {
         return requestHeader;
     }
+
     public String getRequestedPage() {
         return requestedPage;
     }
