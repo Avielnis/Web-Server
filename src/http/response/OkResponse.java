@@ -5,12 +5,12 @@ package http.response;
  * In case everything is okay.
  */
 public class OkResponse extends HttpResponse {
-    public OkResponse(byte[] content) {
+    public OkResponse(String content) {
         super(200, "OK", content);
         this.contentType = "text/html";
     }
 
-    public OkResponse(byte[] content, boolean isImage, boolean isIcon) {
+    public OkResponse(String content, boolean isImage, boolean isIcon) {
         super(200, "OK", content);
         if (isImage) {
             this.contentType = "image/jpeg";

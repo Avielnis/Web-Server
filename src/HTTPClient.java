@@ -2,6 +2,7 @@ import http.response.*;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 public class HTTPClient implements Runnable {
     private TCPServer tcpServer;
@@ -64,7 +65,7 @@ public class HTTPClient implements Runnable {
         FileInputStream fileInputStream = new FileInputStream(htmlFile);
         byte[] fileContent = new byte[(int) htmlFile.length()];
         fileInputStream.read(fileContent);
-        HttpResponse response = new OkResponse(fileContent);
+        HttpResponse response = new OkResponse(new String(fileContent, StandardCharsets.UTF_8));
         System.out.println(response.getResponseHeader());
         out.println(response);
     }
@@ -74,7 +75,6 @@ public class HTTPClient implements Runnable {
     }
 
     private void sendBack501() throws IOException {
-        PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
         out.println(new NotImplementedResponse());
     }
 
