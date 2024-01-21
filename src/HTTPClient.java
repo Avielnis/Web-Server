@@ -23,7 +23,6 @@ public class HTTPClient implements Runnable {
     @Override
     public void run() {
         try {
-            // Determine the request type
 
             mediaStream = clientSocket.getOutputStream();
             textStream = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -31,6 +30,7 @@ public class HTTPClient implements Runnable {
             request = getClientRequest();
 
             System.out.println(request.getRequestHeader());
+            MyLogger.logger.info("Requested: " + request.getRequestHeader());
 
             if (! request.getHttpVersion().equals("HTTP/1.0") &&
                     ! request.getHttpVersion().equals("HTTP/1.1")) {
@@ -42,7 +42,6 @@ public class HTTPClient implements Runnable {
             } else if (request.getType().equals("POST")) {
                 sendBackPOST(request);
             }
-//             Unknown method
             else {
                 sendBack501();
             }
@@ -50,10 +49,8 @@ public class HTTPClient implements Runnable {
 
         } catch (IOException e) {
             MyLogger.logger.severe("Failed handling request at port: " + port);
-//            System.out.println("Failed handling request at port: " + port);
         } catch (NullPointerException e) {
             MyLogger.logger.severe("Input request is null at port: " + port);
-//            System.out.println("Input request is null at port: " + port);
         }
         closeClient();
     }
@@ -72,10 +69,9 @@ public class HTTPClient implements Runnable {
         fileInputStream.read(fileContent);
         HttpResponse response = new OkResponse(fileContent);
 
-        if(pagePath.contains("image")){
-           sendImage(response);
-        }
-        else {
+        if (pagePath.contains("image")) {
+            sendImage(response);
+        } else {
             textStream.println(response);
         }
         System.out.println(response.getResponseHeader());
@@ -99,17 +95,19 @@ public class HTTPClient implements Runnable {
         tcpServer.removeClient(this);
 
     }
-    private void sendImage(HttpResponse response) throws IOException{
+
+    private void sendImage(HttpResponse response) throws IOException {
         response.setContentTypeToImage();
         mediaStream.write(response.getResponseHeader().getBytes());
         mediaStream.write(response.getContent());
     }
 
-    private HTTPRequest getClientRequest() throws IOException{
+    private HTTPRequest getClientRequest() throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         String line = reader.readLine();
         return new HTTPRequest(line);
     }
+
     public Socket getClientSocket() {
         return clientSocket;
     }
