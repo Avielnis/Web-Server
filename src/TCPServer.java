@@ -10,13 +10,16 @@ public class TCPServer {
     private final Object clientsAddLock = new Object();
 
     public TCPServer() throws IOException {
+        MyLogger.removeExsitingHandlaers();
+
         try (ServerSocket serverSocket = new ServerSocket(serverConfig.getPort())) {
+            MyLogger.logger.info("Server starting on port: " + serverConfig.getPort());
             System.out.println("Server starting on port: " + serverConfig.getPort());
 
             while (true) {
                 try {
                     Socket newClientSocket = serverSocket.accept();
-                    System.out.println("New client connected at port: " + newClientSocket.getPort());
+                    MyLogger.logger.info("New client connected at port: " + newClientSocket.getPort());
 
 //                    synchronized (clientsAddLock) {
 //                        while (clients.size() >= 10) {
@@ -28,7 +31,7 @@ public class TCPServer {
                     new Thread(new HTTPClient(this, newClientSocket)).start();
 
                 } catch (IOException e) {
-                    System.out.println("Failed connecting new client");
+                    MyLogger.logger.info("Failed connecting new client");
                 }
             }
 
@@ -40,11 +43,11 @@ public class TCPServer {
     }
 
     public void removeClient(HTTPClient client) {
-        System.out.println("client: " + client.getClientSocket().getPort() + " disconnected");
+        MyLogger.logger.info("client: " + client.getClientSocket().getPort() + " disconnected");
         try {
             client.getClientSocket().close();
         } catch (IOException e) {
-            System.out.println("Failed closing client:" + client.getClientSocket().getPort());
+            MyLogger.logger.info("Failed closing client:" + client.getClientSocket().getPort());
         }
         clients.remove(client);
     }

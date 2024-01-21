@@ -6,6 +6,7 @@ import java.net.Socket;
 public class HTTPClient implements Runnable {
     private TCPServer tcpServer;
     private Socket clientSocket;
+    private HTTPRequest request;
     private int port;
     private PrintWriter textStream;
     private OutputStream mediaStream;
@@ -23,33 +24,36 @@ public class HTTPClient implements Runnable {
     public void run() {
         try {
             // Determine the request type
-            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
             mediaStream = clientSocket.getOutputStream();
             textStream = new PrintWriter(clientSocket.getOutputStream(), true);
-            String requestLine = in.readLine(); // Read the request line GET or POST
-            String[] requestParts = requestLine.split(" ");
-            System.out.println(requestLine);
 
-            if (! requestParts[requestParts.length - 1].equals("HTTP/1.0") &&
-                    ! requestParts[requestParts.length - 1].equals("HTTP/1.1")) {
+            request = getClientRequest();
+
+            System.out.println(request.getRequestHeader());
+
+            if (! request.getHttpVersion().equals("HTTP/1.0") &&
+                    ! request.getHttpVersion().equals("HTTP/1.1")) {
                 throw new IOException();
             }
 
-            if (requestParts[0].equals("GET")) {
-                sendBackGET(requestParts[1]);
-            } else if (requestParts[0].equals("POST")) {
-                sendBackPOST(requestParts);
+            if (request.getType().equals("GET")) {
+                sendBackGET(request.getRequestedPage());
+            } else if (request.getType().equals("POST")) {
+                sendBackPOST(request);
             }
-            // Unknown method
+//             Unknown method
             else {
                 sendBack501();
             }
 
 
         } catch (IOException e) {
-            System.out.println("Failed handling request at port: " + port);
+            MyLogger.logger.severe("Failed handling request at port: " + port);
+//            System.out.println("Failed handling request at port: " + port);
         } catch (NullPointerException e) {
-            System.out.println("Input request is null at port: " + port);
+            MyLogger.logger.severe("Input request is null at port: " + port);
+//            System.out.println("Input request is null at port: " + port);
         }
         closeClient();
     }
@@ -77,20 +81,20 @@ public class HTTPClient implements Runnable {
         System.out.println(response.getResponseHeader());
     }
 
-    private void sendBackPOST(String[] requestParts) throws IOException {
+    private void sendBackPOST(HTTPRequest request) throws IOException {
 
     }
 
     private void sendBack501() throws IOException {
-        PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-        out.println(new NotImplementedResponse());
+        textStream.println(new NotImplementedResponse());
     }
 
     private void closeClient() {
         try {
             clientSocket.close();
         } catch (IOException e) {
-            System.out.println("Field closing client at port: " + port);
+            MyLogger.logger.severe("Field closing client at port: " + port);
+//            System.out.println("Field closing client at port: " + port);
         }
         tcpServer.removeClient(this);
 
@@ -99,6 +103,12 @@ public class HTTPClient implements Runnable {
         response.setContentTypeToImage();
         mediaStream.write(response.getResponseHeader().getBytes());
         mediaStream.write(response.getContent());
+    }
+
+    private HTTPRequest getClientRequest() throws IOException{
+        BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        String line = reader.readLine();
+        return new HTTPRequest(line);
     }
     public Socket getClientSocket() {
         return clientSocket;
