@@ -3,7 +3,6 @@ import java.util.HashMap;
 public class HTTPRequest {
     private String type;
     private String requestedPage;
-    private boolean isImage;
     private int contentLength;
     private String referer;
     private String userAgent;
@@ -82,8 +81,16 @@ public class HTTPRequest {
         return httpVersion;
     }
 
-    public boolean isImage() {
-        return isImage;
+    public boolean isPageImage() {
+        int dotIndex = requestedPage.lastIndexOf('.');
+        if (dotIndex == - 1) {
+            return false;
+        }
+        String extension = requestedPage.substring(dotIndex);
+        if (extension.equals(".bmp") || extension.equals(".gif") || extension.equals(".png") || extension.equals(".jpg")) {
+            return true;
+        }
+        return false;
     }
 
     public int getContentLength() {
@@ -113,7 +120,7 @@ public class HTTPRequest {
 
         System.out.println("Type: " + httpRequest.getType());
         System.out.println("Requested Page: " + httpRequest.getRequestedPage());
-        System.out.println("Is Image: " + httpRequest.isImage());
+        System.out.println("Is Image: " + httpRequest.isPageImage());
         System.out.println("Content Length: " + httpRequest.getContentLength());
         System.out.println("Referer: " + httpRequest.getReferer());
         System.out.println("User Agent: " + httpRequest.getUserAgent());
