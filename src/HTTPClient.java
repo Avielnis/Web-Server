@@ -4,7 +4,6 @@ import java.io.*;
 import java.net.Socket;
 
 public class HTTPClient implements Runnable {
-    private TCPServer tcpServer;
     private Socket clientSocket;
     private HTTPRequest request;
     private int port;
@@ -12,11 +11,10 @@ public class HTTPClient implements Runnable {
     private OutputStream mediaStream;
     private final ServerConfig serverConfig = ServerConfig.getInstance();
 
-    public HTTPClient(TCPServer tcpServer, Socket clientSocket) {
-        this.tcpServer = tcpServer;
+    public HTTPClient(Socket clientSocket) {
         this.clientSocket = clientSocket;
         this.port = clientSocket.getPort();
-        tcpServer.registerClient(this);
+
     }
 
 
@@ -41,8 +39,7 @@ public class HTTPClient implements Runnable {
                 sendBackGET(request.getRequestedPage());
             } else if (request.getType().equals("POST")) {
                 sendBackPOST(request);
-            }
-            else {
+            } else {
                 sendBack501();
             }
 
@@ -52,7 +49,6 @@ public class HTTPClient implements Runnable {
         } catch (NullPointerException e) {
             MyLogger.logger.severe("Input request is null at port: " + port);
         }
-        closeClient();
     }
 
     private void sendBackGET(String pagePath) throws IOException {
@@ -85,16 +81,6 @@ public class HTTPClient implements Runnable {
         textStream.println(new NotImplementedResponse());
     }
 
-    private void closeClient() {
-        try {
-            clientSocket.close();
-        } catch (IOException e) {
-            MyLogger.logger.severe("Field closing client at port: " + port);
-//            System.out.println("Field closing client at port: " + port);
-        }
-        tcpServer.removeClient(this);
-
-    }
 
     private void sendImage(HttpResponse response) throws IOException {
         response.setContentTypeToImage();
