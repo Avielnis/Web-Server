@@ -1,4 +1,7 @@
 import java.net.HttpRetryException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 
 public class HTTPRequest {
@@ -39,6 +42,7 @@ public class HTTPRequest {
             } else {
                 requestedPage = requestedPath;
             }
+            requestedPage = requestedPage.substring(requestedPage.lastIndexOf('/'));
         }
 
         // Parse other headers
@@ -52,19 +56,45 @@ public class HTTPRequest {
                 userAgent = line.substring("User-Agent: ".length());
             }
         }
+        int paramIndex = lines[0].indexOf('?');
+        if (paramIndex != - 1) {
+            parseParams(lines[0].substring(paramIndex + 1));
+        }
+    }
 
+    public void parseParams(String paramString) {
         // Parse parameters from the requested page (if any)
         parameters = new HashMap<>();
-        String requestLine = lines[0];
-        int paramIndex = requestLine.indexOf('?');
-        if (paramIndex != - 1) {
-            String paramString = requestLine.substring(paramIndex + 1);
-            paramString = paramString.substring(0, paramString.indexOf(' '));
-            String[] paramPairs = paramString.split("&");
-            for (String paramPair : paramPairs) {
-                String[] keyValue = paramPair.split("=");
-                if (keyValue.length == 2) {
-                    parameters.put(keyValue[0], keyValue[1]);
+        int spaceIndex = paramString.indexOf(' ');
+        if (spaceIndex != - 1) {
+            paramString = paramString.substring(0, spaceIndex);
+        }
+        String[] paramPairs = paramString.split("&");
+        for (String paramPair : paramPairs) {
+            String[] keyValue = paramPair.split("=");
+            if (keyValue.length == 2) {
+                parameters.put(keyValue[0], keyValue[1]);
+            }
+        }
+    }
+
+    public void parsePostParams_PostMan(String body, String boundary) {
+        String[] parts = body.split(boundary);
+        for (String part : parts) {
+            String[] lines = part.split("\r\n");
+            if (lines.length > 2) {
+                String header = lines[1];
+                String key = null;
+                if (header.contains("name=\"")) {
+                    key = header.substring(header.indexOf("name=\"") + 6, header.indexOf("\"", header.indexOf("name=\"") + 6));
+                }
+                StringBuilder value = new StringBuilder();
+                for (int i = 3; i < lines.length - 1; i++) {
+
+                    value.append(lines[i]);
+                }
+                if (key != null && ! key.isEmpty()) {
+                    parameters.put(key, value.toString());
                 }
             }
         }
@@ -81,6 +111,14 @@ public class HTTPRequest {
 
     public String getRequestedPage() {
         return requestedPage;
+    }
+
+    public boolean isPageExists() {
+        if (requestedPage.equals("/")) {
+            return true;
+        }
+        Path filePath = Paths.get(ServerConfig.getInstance().getRoot() + requestedPage.substring(requestedPage.lastIndexOf('/')));
+        return Files.exists(filePath) && Files.isRegularFile(filePath);
     }
 
     public String getHttpVersion() {

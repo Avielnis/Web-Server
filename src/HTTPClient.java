@@ -52,10 +52,14 @@ public class HTTPClient implements Runnable {
         if (! request.getRequestedPage().equals("/")) {
             pageFilePath = serverConfig.getRoot() + request.getRequestedPage();
         }
-        File htmlFile = new File(pageFilePath);
-        if (! htmlFile.exists()) {
+
+        if (! request.isPageExists()) {
             textStream.println(new NotFoundResponse());
+            MyLogger.logger.info("Didnt find: " + request.getRequestedPage());
+            return;
         }
+
+        File htmlFile = new File(pageFilePath);
         FileInputStream fileInputStream = new FileInputStream(htmlFile);
         byte[] fileContent = new byte[(int) htmlFile.length()];
         fileInputStream.read(fileContent);
@@ -96,7 +100,26 @@ public class HTTPClient implements Runnable {
     private HTTPRequest getClientRequest() throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         String line = reader.readLine();
-        return new HTTPRequest(line);
+        HTTPRequest httpRequest = new HTTPRequest(line);
+        if (httpRequest.getType().equals("GET")) {
+            return httpRequest;
+        }
+        return getClientRequest(reader, httpRequest);
+    }
+
+    private HTTPRequest getClientRequest(BufferedReader reader, HTTPRequest httpRequest) throws IOException {
+        String post_input;
+        int contentLength = 0;
+        while ((post_input = reader.readLine()) != null && ! post_input.isEmpty()) {
+            if (post_input.contains("Content-Length: ")) {
+                contentLength = Integer.parseInt(post_input.substring(post_input.lastIndexOf(' ') + 1));
+            }
+        }
+        char[] buffer = new char[contentLength];
+        reader.read(buffer, 0, contentLength);
+        String postBody = new String(buffer);
+        httpRequest.parseParams(postBody);
+        return httpRequest;
     }
 
     public Socket getClientSocket() {
