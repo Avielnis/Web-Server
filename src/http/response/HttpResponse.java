@@ -39,7 +39,7 @@ public abstract class HttpResponse {
         this.contentType = "image/jpeg";
     }
     public void setContentTypeToIcon(){
-        this.contentType = "icon";
+        this.contentType = "image/x-icon";
     }
     @Override
     public String toString() {

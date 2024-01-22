@@ -61,8 +61,10 @@ public class HTTPClient implements Runnable {
         fileInputStream.read(fileContent);
         HttpResponse response = new OkResponse(fileContent);
 
-        if (request.isPageImage()) {
+        if (request.isImage()) {
             sendImage(response);
+        } else if (request.isIcon()) {
+            sendIcon(response);
         } else {
             // send .html
             textStream.println(response);
@@ -81,6 +83,12 @@ public class HTTPClient implements Runnable {
 
     private void sendImage(HttpResponse response) throws IOException {
         response.setContentTypeToImage();
+        mediaStream.write(response.getResponseHeader().getBytes());
+        mediaStream.write(response.getContent());
+    }
+
+    private void sendIcon(HttpResponse response) throws IOException {
+        response.setContentTypeToIcon();
         mediaStream.write(response.getResponseHeader().getBytes());
         mediaStream.write(response.getContent());
     }
