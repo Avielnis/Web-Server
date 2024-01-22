@@ -30,13 +30,9 @@ public class HTTPClient implements Runnable {
             System.out.println(request.getRequestHeader());
             MyLogger.logger.info("Requested: " + request.getRequestHeader());
 
-            if (! request.getHttpVersion().equals("HTTP/1.0") &&
-                    ! request.getHttpVersion().equals("HTTP/1.1")) {
-                throw new IOException();
-            }
 
             if (request.getType().equals("GET")) {
-                sendBackGET(request.getRequestedPage());
+                sendBackGET();
             } else if (request.getType().equals("POST")) {
                 sendBackPOST(request);
             } else {
@@ -51,10 +47,10 @@ public class HTTPClient implements Runnable {
         }
     }
 
-    private void sendBackGET(String pagePath) throws IOException {
+    private void sendBackGET() throws IOException {
         String pageFilePath = serverConfig.getRoot() + "/" + serverConfig.getDefaultPage();
-        if (! pagePath.equals("/")) {
-            pageFilePath = serverConfig.getRoot() + pagePath;
+        if (! request.getRequestedPage().equals("/")) {
+            pageFilePath = serverConfig.getRoot() + request.getRequestedPage();
         }
         File htmlFile = new File(pageFilePath);
         if (! htmlFile.exists()) {
@@ -65,9 +61,10 @@ public class HTTPClient implements Runnable {
         fileInputStream.read(fileContent);
         HttpResponse response = new OkResponse(fileContent);
 
-        if (pagePath.contains("image")) {
+        if (request.isPageImage()) {
             sendImage(response);
         } else {
+            // send .html
             textStream.println(response);
         }
         System.out.println(response.getResponseHeader());

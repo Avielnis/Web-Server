@@ -1,3 +1,5 @@
+import java.io.IOException;
+import java.net.HttpRetryException;
 import java.util.HashMap;
 
 public class HTTPRequest {
@@ -11,18 +13,23 @@ public class HTTPRequest {
     private String httpVersion;
 
 
-    public HTTPRequest(String requestHeader) {
+    public HTTPRequest(String requestHeader) throws HttpRetryException {
         this.requestHeader = requestHeader;
         parseRequestHeader();
     }
 
-    private void parseRequestHeader() {
+    private void parseRequestHeader() throws HttpRetryException {
 
         String[] lines = requestHeader.split("\r\n");
 
         // First line contains the request type and requested page
         String[] firstLineParts = lines[0].split(" ");
         httpVersion = firstLineParts[firstLineParts.length - 1];
+        if (! httpVersion.equals("HTTP/1.0") && ! httpVersion.equals("HTTP/1.1")) {
+            MyLogger.logger.severe("HTTP version is not 1.0 or 1.1 for request: " + requestHeader);
+            throw new HttpRetryException("HTTP version is not 1.0 or 1.1", 500);
+        }
+
         if (firstLineParts.length >= 2) {
             type = firstLineParts[0];
             // Extract the requested page portion without parameters
@@ -87,7 +94,7 @@ public class HTTPRequest {
             return false;
         }
         String extension = requestedPage.substring(dotIndex);
-        if (extension.equals(".bmp") || extension.equals(".gif") || extension.equals(".png") || extension.equals(".jpg")) {
+        if (extension.equals(".bmp") || extension.equals(".gif") || extension.equals(".png") || extension.equals(".jpg") || extension.equals(".ico")) {
             return true;
         }
         return false;
@@ -109,12 +116,13 @@ public class HTTPRequest {
         return parameters;
     }
 
-    public static void main(String[] args) {
-        String requestHeader = "GET /index.html?Name=Aviel&Last=Nisanov HTTP/1.1\r\n" +
-                "Host: example.com\r\n" +
-                "Referer: http://referer.com\r\n" +
-                "User-Agent: Mozilla/5.0\r\n" +
-                "Content-Length: 0\r\n\r\n";
+    @Override
+    public String toString() {
+        return requestHeader;
+    }
+
+    public static void main(String[] args) throws HttpRetryException {
+        String requestHeader = "GET /index.html?Name=Aviel&Last=Nisanov HTTP/1.1\r\n" + "Host: example.com\r\n" + "Referer: http://referer.com\r\n" + "User-Agent: Mozilla/5.0\r\n" + "Content-Length: 0\r\n\r\n";
 
         HTTPRequest httpRequest = new HTTPRequest(requestHeader);
 
