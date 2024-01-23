@@ -10,8 +10,6 @@ public class HTTPClient implements Runnable {
     private Socket clientSocket;
     private HTTPRequest request;
     private int port;
-    private PrintWriter textStream;
-    private OutputStream mediaStream;
     private final ServerConfig serverConfig = ServerConfig.getInstance();
 
     public HTTPClient(Socket clientSocket) {
@@ -24,10 +22,6 @@ public class HTTPClient implements Runnable {
     @Override
     public void run() {
         try {
-
-            mediaStream = clientSocket.getOutputStream();
-            textStream = new PrintWriter(clientSocket.getOutputStream(), true);
-
             request = getClientRequest();
 
             System.out.println(request.getShortRequestHeader());
@@ -110,10 +104,12 @@ public class HTTPClient implements Runnable {
     }
 
     private void sendResponse(HttpResponse response) throws IOException {
+        OutputStream byteStream = clientSocket.getOutputStream();
+        PrintWriter textStream = new PrintWriter(clientSocket.getOutputStream(), true);
         if (! request.isChunked()) {
             if (request.isImage() || request.isIcon()) {
-                mediaStream.write(response.getResponseHeader().getBytes());
-                mediaStream.write(response.getContent());
+                byteStream.write(response.getResponseHeader().getBytes());
+                byteStream.write(response.getContent());
             } else {
                 textStream.println(response);
             }
@@ -123,7 +119,7 @@ public class HTTPClient implements Runnable {
         response.setChunked();
         // Convert response to a string representation
         String responseHeader = response.getResponseHeader();
-        mediaStream.write(responseHeader.getBytes());
+        byteStream.write(responseHeader.getBytes());
 
         byte[] responseBytes = response.getContent();
         int offset = 0;
@@ -137,8 +133,8 @@ public class HTTPClient implements Runnable {
             // Send the size of the chunk in hexadecimal
             textStream.println(Integer.toHexString(chunk.length));
             // Send the chunk itself
-            mediaStream.write(chunk);
-            mediaStream.flush();
+            byteStream.write(chunk);
+            byteStream.flush();
             textStream.println(); // End of chunk
 
             offset += chunkSize;
