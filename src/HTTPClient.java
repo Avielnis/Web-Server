@@ -5,6 +5,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 public class HTTPClient implements Runnable {
     private Socket clientSocket;
@@ -94,16 +95,16 @@ public class HTTPClient implements Runnable {
         String htmlParamsPage = injectHTMLParams(request, fileContent);
         HttpResponse response = new OkResponse(htmlParamsPage.getBytes());
         sendHtml(response);
-        System.out.println(request.getRequestHeader());
+        System.out.println(response.getResponseHeader());
     }
 
     private String injectHTMLParams(HTTPRequest request, byte[] fileContent) {
         String htmlTemplate = new String(fileContent);
         HashMap<String, String> params = request.getParameters();
-        htmlTemplate = htmlTemplate.replace("{receiver}", params.getOrDefault("receiver", ""));
-        htmlTemplate = htmlTemplate.replace("{sender}", params.getOrDefault("sender", ""));
-        htmlTemplate = htmlTemplate.replace("{subject}", params.getOrDefault("subject", ""));
-        htmlTemplate = htmlTemplate.replace("{message}", params.getOrDefault("message", ""));
+        String result = params.entrySet().stream()
+                .map(entry -> "<p>" + entry.getKey() + ": " + entry.getValue() + "</p>")
+                .collect(Collectors.joining("\n"));
+        htmlTemplate = htmlTemplate.replace("{content}", result);
         return htmlTemplate;
     }
 
