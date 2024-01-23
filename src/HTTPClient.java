@@ -57,7 +57,7 @@ public class HTTPClient implements Runnable {
         }
 
         if (! request.isPageExists()) {
-            textStream.println(new NotFoundResponse());
+            sendResponse(new NotFoundResponse());
             MyLogger.logger.info("Didnt find: " + request.getRequestedPage());
             return;
         }
@@ -74,13 +74,12 @@ public class HTTPClient implements Runnable {
             response.setContentTypeToIcon();
         }
         sendResponse(response);
-        System.out.println(response.getResponseHeader());
     }
 
 
     private void sendBackPOST(HTTPRequest request) throws IOException {
         if (! request.getRequestedPage().equals("/")) {
-            textStream.println(new NotFoundResponse());
+            sendResponse(new NotFoundResponse());
             MyLogger.logger.info("Didnt find: " + request.getRequestedPage());
             return;
         }
@@ -93,7 +92,7 @@ public class HTTPClient implements Runnable {
         String htmlParamsPage = injectHTMLParams(request, fileContent);
         HttpResponse response = new OkResponse(htmlParamsPage.getBytes());
         sendResponse(response);
-        System.out.println(response.getResponseHeader());
+
     }
 
     private String injectHTMLParams(HTTPRequest request, byte[] fileContent) {
@@ -107,7 +106,7 @@ public class HTTPClient implements Runnable {
     }
 
     private void sendBack501() throws IOException {
-        textStream.println(new NotImplementedResponse());
+        sendResponse(new NotImplementedResponse());
     }
 
     private void sendResponse(HttpResponse response) throws IOException {
@@ -118,6 +117,7 @@ public class HTTPClient implements Runnable {
             } else {
                 textStream.println(response);
             }
+            System.out.println(response.getResponseHeader());
             return;
         }
         response.setChunked();
@@ -127,7 +127,7 @@ public class HTTPClient implements Runnable {
 
         byte[] responseBytes = response.getContent();
         int offset = 0;
-        int bufferSize = 1024; // Size of each chunk, you can adjust this based on your needs
+        int bufferSize = 1024; // Size of each chunk
 
         // Send chunks while there's data to send
         while (offset < responseBytes.length) {
@@ -147,6 +147,7 @@ public class HTTPClient implements Runnable {
         // Send a zero-length chunk to indicate the end of the response
         textStream.println("0");
         textStream.println(); // End of the chunked response
+        System.out.println(response.getResponseHeader());
     }
 
 
