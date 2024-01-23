@@ -2,6 +2,7 @@ import http.response.*;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.HashMap;
 
 public class HTTPClient implements Runnable {
     private Socket clientSocket;
@@ -77,13 +78,29 @@ public class HTTPClient implements Runnable {
     }
 
     private void sendBackPOST(HTTPRequest request) throws IOException {
-
+        if(!request.getRequestedPage().equals("/")){
+            textStream.println(new NotFoundResponse());
+            MyLogger.logger.info("Didnt find: " + request.getRequestedPage());
+            return;
+        }
+        request.setRequestedPage("params_info.html");
+        String pageFilePath = serverConfig.getRoot() + "/" +  request.getRequestedPage();
+        File paramsHtmlFile = new File(pageFilePath);
+        FileInputStream fileInputStream = new FileInputStream(paramsHtmlFile);
+        byte[] fileContent = new byte[(int) paramsHtmlFile.length()];
+        fileInputStream.read(fileContent);
+        String htmlTemplate = new String(fileContent);
+        HashMap<String,String> params = request.getParameters();
+        htmlTemplate = htmlTemplate.replace("{receiver}", params.getOrDefault("receiver", ""));
+        htmlTemplate = htmlTemplate.replace("{sender}", params.getOrDefault("sender", ""));
+        htmlTemplate = htmlTemplate.replace("{subject}", params.getOrDefault("subject", ""));
+        htmlTemplate = htmlTemplate.replace("{message}", params.getOrDefault("message", ""));
+        textStream.println(new OkResponse(htmlTemplate.getBytes()));
     }
 
     private void sendBack501() throws IOException {
         textStream.println(new NotImplementedResponse());
     }
-
 
     private void sendImage(HttpResponse response) throws IOException {
         response.setContentTypeToImage();

@@ -1,8 +1,11 @@
+import java.io.UnsupportedEncodingException;
 import java.net.HttpRetryException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.net.URLDecoder;
 
 public class HTTPRequest {
     private String type;
@@ -15,12 +18,12 @@ public class HTTPRequest {
     private String httpVersion;
 
 
-    public HTTPRequest(String requestHeader) throws HttpRetryException {
+    public HTTPRequest(String requestHeader) throws HttpRetryException, UnsupportedEncodingException {
         this.requestHeader = requestHeader;
         parseRequestHeader();
     }
 
-    private void parseRequestHeader() throws HttpRetryException {
+    private void parseRequestHeader() throws HttpRetryException, UnsupportedEncodingException {
 
         String[] lines = requestHeader.split("\r\n");
 
@@ -62,7 +65,7 @@ public class HTTPRequest {
         }
     }
 
-    public void parseParams(String paramString) {
+    public void parseParams(String paramString) throws UnsupportedEncodingException {
         // Parse parameters from the requested page (if any)
         parameters = new HashMap<>();
         int spaceIndex = paramString.indexOf(' ');
@@ -73,7 +76,9 @@ public class HTTPRequest {
         for (String paramPair : paramPairs) {
             String[] keyValue = paramPair.split("=");
             if (keyValue.length == 2) {
-                parameters.put(keyValue[0], keyValue[1]);
+                String key = URLDecoder.decode(keyValue[0],"UTF-8");
+                String value = URLDecoder.decode(keyValue[1],"UTF-8");
+                parameters.put(key,value);
             }
         }
     }
@@ -111,6 +116,10 @@ public class HTTPRequest {
 
     public String getRequestedPage() {
         return requestedPage;
+    }
+
+    public void setRequestedPage(String requestedPage) {
+        this.requestedPage = requestedPage;
     }
 
     public boolean isPageExists() {
@@ -170,17 +179,4 @@ public class HTTPRequest {
         return requestHeader;
     }
 
-    public static void main(String[] args) throws HttpRetryException {
-        String requestHeader = "GET /index.html?Name=Aviel&Last=Nisanov HTTP/1.1\r\n" + "Host: example.com\r\n" + "Referer: http://referer.com\r\n" + "User-Agent: Mozilla/5.0\r\n" + "Content-Length: 0\r\n\r\n";
-
-        HTTPRequest httpRequest = new HTTPRequest(requestHeader);
-
-        System.out.println("Type: " + httpRequest.getType());
-        System.out.println("Requested Page: " + httpRequest.getRequestedPage());
-        System.out.println("Is Image: " + httpRequest.isImage());
-        System.out.println("Content Length: " + httpRequest.getContentLength());
-        System.out.println("Referer: " + httpRequest.getReferer());
-        System.out.println("User Agent: " + httpRequest.getUserAgent());
-        System.out.println("Parameters: " + httpRequest.getParameters());
-    }
 }
