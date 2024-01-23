@@ -2,6 +2,8 @@ import http.response.*;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class HTTPClient implements Runnable {
@@ -71,31 +73,33 @@ public class HTTPClient implements Runnable {
         } else if (request.isIcon()) {
             sendIcon(response);
         } else {
-            // send .html
-            textStream.println(response);
+            sendHtml(response);
         }
         System.out.println(response.getResponseHeader());
     }
 
+
     private void sendBackPOST(HTTPRequest request) throws IOException {
-        if(!request.getRequestedPage().equals("/")){
+        if (! request.getRequestedPage().equals("/")) {
             textStream.println(new NotFoundResponse());
             MyLogger.logger.info("Didnt find: " + request.getRequestedPage());
             return;
         }
         request.setRequestedPage("params_info.html");
-        String pageFilePath = serverConfig.getRoot() + "/" +  request.getRequestedPage();
+        String pageFilePath = serverConfig.getRoot() + "/" + request.getRequestedPage();
         File paramsHtmlFile = new File(pageFilePath);
         FileInputStream fileInputStream = new FileInputStream(paramsHtmlFile);
         byte[] fileContent = new byte[(int) paramsHtmlFile.length()];
         fileInputStream.read(fileContent);
         String htmlParamsPage = injectHTMLParams(request, fileContent);
-        textStream.println(new OkResponse(htmlParamsPage.getBytes()));
+        HttpResponse response = new OkResponse(htmlParamsPage.getBytes());
+        sendHtml(response);
+        System.out.println(request.getRequestHeader());
     }
 
     private String injectHTMLParams(HTTPRequest request, byte[] fileContent) {
         String htmlTemplate = new String(fileContent);
-        HashMap<String,String> params = request.getParameters();
+        HashMap<String, String> params = request.getParameters();
         htmlTemplate = htmlTemplate.replace("{receiver}", params.getOrDefault("receiver", ""));
         htmlTemplate = htmlTemplate.replace("{sender}", params.getOrDefault("sender", ""));
         htmlTemplate = htmlTemplate.replace("{subject}", params.getOrDefault("subject", ""));
@@ -106,6 +110,42 @@ public class HTTPClient implements Runnable {
     private void sendBack501() throws IOException {
         textStream.println(new NotImplementedResponse());
     }
+
+    private void sendHtml(HttpResponse response) throws IOException {
+        if (! request.isChunked()) {
+            textStream.println(response);
+            return;
+        }
+        response.setChunked();
+        // Convert response to a string representation
+        String responseHeader = response.getResponseHeader();
+        textStream.println(responseHeader);
+
+        byte[] responseBytes = response.getContent();
+        int offset = 0;
+        int bufferSize = 1024; // Size of each chunk, you can adjust this based on your needs
+
+        // Send chunks while there's data to send
+        while (offset < responseBytes.length) {
+            int chunkSize = Math.min(bufferSize, responseBytes.length - offset);
+            byte[] chunk = Arrays.copyOfRange(responseBytes, offset, offset + chunkSize);
+
+            // Send the size of the chunk in hexadecimal
+            textStream.println(Integer.toHexString(chunkSize));
+            // Send the chunk itself
+            mediaStream.write(chunk);
+            mediaStream.flush();
+//            textStream.write(chunk);
+            textStream.println(); // End of chunk
+
+            offset += chunkSize;
+        }
+
+        // Send a zero-length chunk to indicate the end of the response
+        textStream.println("0");
+        textStream.println(); // End of the chunked response
+    }
+
 
     private void sendImage(HttpResponse response) throws IOException {
         response.setContentTypeToImage();
@@ -120,29 +160,28 @@ public class HTTPClient implements Runnable {
     }
 
     private HTTPRequest getClientRequest() throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        String line = reader.readLine();
-        HTTPRequest httpRequest = new HTTPRequest(line);
-        if (httpRequest.getType().equals("GET")) {
-            return httpRequest;
-        }
-        return getClientRequest(reader, httpRequest);
+        String fullRequest = readFullRequest();
+        return new HTTPRequest(fullRequest);
     }
 
-    private HTTPRequest getClientRequest(BufferedReader reader, HTTPRequest httpRequest) throws IOException {
-        String post_input;
+    private String readFullRequest() throws IOException {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        StringBuilder request = new StringBuilder();
+        String line;
         int contentLength = 0;
-        while ((post_input = reader.readLine()) != null && ! post_input.isEmpty()) {
-            if (post_input.contains("Content-Length: ")) {
-                contentLength = Integer.parseInt(post_input.substring(post_input.lastIndexOf(' ') + 1));
+        while (! (line = reader.readLine()).isBlank()) {
+            request.append(line).append("\r\n");
+            if (line.contains("Content-Length: ")) {
+                contentLength = Integer.parseInt(line.substring(line.lastIndexOf(' ') + 1));
             }
         }
         char[] buffer = new char[contentLength];
         reader.read(buffer, 0, contentLength);
         String postBody = new String(buffer);
-        httpRequest.parseParams(postBody);
-        return httpRequest;
+        request.append(postBody + "\r\n");
+        return request.toString();
     }
+
 
     public Socket getClientSocket() {
         return clientSocket;

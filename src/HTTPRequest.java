@@ -16,6 +16,7 @@ public class HTTPRequest {
     private HashMap<String, String> parameters;
     private String requestHeader;
     private String httpVersion;
+    private boolean chunked;
 
 
     public HTTPRequest(String requestHeader) throws HttpRetryException, UnsupportedEncodingException {
@@ -57,11 +58,18 @@ public class HTTPRequest {
                 referer = line.substring("Referer: ".length());
             } else if (line.startsWith("User-Agent: ")) {
                 userAgent = line.substring("User-Agent: ".length());
+            } else if (line.startsWith("chunked: ")) {
+                chunked = line.substring("chunked: ".length()).equals("yes");
             }
         }
-        int paramIndex = lines[0].indexOf('?');
-        if (paramIndex != - 1) {
-            parseParams(lines[0].substring(paramIndex + 1));
+        if (type.equals("GET")) {
+            int paramIndex = lines[0].indexOf('?');
+            if (paramIndex != - 1) {
+                parseParams(lines[0].substring(paramIndex + 1));
+            }
+        }
+        if (type.equals("POST")) {
+            parseParams(lines[lines.length - 1]);
         }
     }
 
@@ -76,9 +84,9 @@ public class HTTPRequest {
         for (String paramPair : paramPairs) {
             String[] keyValue = paramPair.split("=");
             if (keyValue.length == 2) {
-                String key = URLDecoder.decode(keyValue[0],"UTF-8");
-                String value = URLDecoder.decode(keyValue[1],"UTF-8");
-                parameters.put(key,value);
+                String key = URLDecoder.decode(keyValue[0], "UTF-8");
+                String value = URLDecoder.decode(keyValue[1], "UTF-8");
+                parameters.put(key, value);
             }
         }
     }
@@ -116,6 +124,10 @@ public class HTTPRequest {
 
     public String getRequestedPage() {
         return requestedPage;
+    }
+
+    public boolean isChunked() {
+        return chunked;
     }
 
     public void setRequestedPage(String requestedPage) {
