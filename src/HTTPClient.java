@@ -2,7 +2,6 @@ import http.response.*;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.stream.Collectors;
@@ -70,12 +69,11 @@ public class HTTPClient implements Runnable {
         HttpResponse response = new OkResponse(fileContent);
 
         if (request.isImage()) {
-            sendImage(response);
+            response.setContentTypeToImage();
         } else if (request.isIcon()) {
-            sendIcon(response);
-        } else {
-            sendHtml(response);
+            response.setContentTypeToIcon();
         }
+        sendResponse(response);
         System.out.println(response.getResponseHeader());
     }
 
@@ -94,7 +92,7 @@ public class HTTPClient implements Runnable {
         fileInputStream.read(fileContent);
         String htmlParamsPage = injectHTMLParams(request, fileContent);
         HttpResponse response = new OkResponse(htmlParamsPage.getBytes());
-        sendHtml(response);
+        sendResponse(response);
         System.out.println(response.getResponseHeader());
     }
 
@@ -112,15 +110,20 @@ public class HTTPClient implements Runnable {
         textStream.println(new NotImplementedResponse());
     }
 
-    private void sendHtml(HttpResponse response) throws IOException {
+    private void sendResponse(HttpResponse response) throws IOException {
         if (! request.isChunked()) {
-            textStream.println(response);
+            if (request.isImage() || request.isIcon()) {
+                mediaStream.write(response.getResponseHeader().getBytes());
+                mediaStream.write(response.getContent());
+            } else {
+                textStream.println(response);
+            }
             return;
         }
         response.setChunked();
         // Convert response to a string representation
         String responseHeader = response.getResponseHeader();
-        textStream.print(responseHeader);
+        mediaStream.write(responseHeader.getBytes());
 
         byte[] responseBytes = response.getContent();
         int offset = 0;
@@ -136,7 +139,6 @@ public class HTTPClient implements Runnable {
             // Send the chunk itself
             mediaStream.write(chunk);
             mediaStream.flush();
-//            textStream.write(chunk);
             textStream.println(); // End of chunk
 
             offset += chunkSize;
@@ -147,18 +149,6 @@ public class HTTPClient implements Runnable {
         textStream.println(); // End of the chunked response
     }
 
-
-    private void sendImage(HttpResponse response) throws IOException {
-        response.setContentTypeToImage();
-        mediaStream.write(response.getResponseHeader().getBytes());
-        mediaStream.write(response.getContent());
-    }
-
-    private void sendIcon(HttpResponse response) throws IOException {
-        response.setContentTypeToIcon();
-        mediaStream.write(response.getResponseHeader().getBytes());
-        mediaStream.write(response.getContent());
-    }
 
     private HTTPRequest getClientRequest() throws IOException {
         String fullRequest = readFullRequest();
