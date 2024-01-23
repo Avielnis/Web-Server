@@ -119,7 +119,7 @@ public class HTTPClient implements Runnable {
         response.setChunked();
         // Convert response to a string representation
         String responseHeader = response.getResponseHeader();
-        textStream.println(responseHeader);
+        textStream.print(responseHeader);
 
         byte[] responseBytes = response.getContent();
         int offset = 0;
@@ -131,7 +131,7 @@ public class HTTPClient implements Runnable {
             byte[] chunk = Arrays.copyOfRange(responseBytes, offset, offset + chunkSize);
 
             // Send the size of the chunk in hexadecimal
-            textStream.println(Integer.toHexString(chunkSize));
+            textStream.println(Integer.toHexString(chunk.length));
             // Send the chunk itself
             mediaStream.write(chunk);
             mediaStream.flush();
