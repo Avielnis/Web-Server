@@ -89,13 +89,18 @@ public class HTTPClient implements Runnable {
         FileInputStream fileInputStream = new FileInputStream(paramsHtmlFile);
         byte[] fileContent = new byte[(int) paramsHtmlFile.length()];
         fileInputStream.read(fileContent);
+        String htmlParamsPage = injectHTMLParams(request, fileContent);
+        textStream.println(new OkResponse(htmlParamsPage.getBytes()));
+    }
+
+    private String injectHTMLParams(HTTPRequest request, byte[] fileContent) {
         String htmlTemplate = new String(fileContent);
         HashMap<String,String> params = request.getParameters();
         htmlTemplate = htmlTemplate.replace("{receiver}", params.getOrDefault("receiver", ""));
         htmlTemplate = htmlTemplate.replace("{sender}", params.getOrDefault("sender", ""));
         htmlTemplate = htmlTemplate.replace("{subject}", params.getOrDefault("subject", ""));
         htmlTemplate = htmlTemplate.replace("{message}", params.getOrDefault("message", ""));
-        textStream.println(new OkResponse(htmlTemplate.getBytes()));
+        return htmlTemplate;
     }
 
     private void sendBack501() throws IOException {
