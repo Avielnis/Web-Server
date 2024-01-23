@@ -78,7 +78,7 @@ public class HTTPClient implements Runnable {
 
 
     private void sendBackPOST(HTTPRequest request) throws IOException {
-        if (! request.getRequestedPage().equals("/")) {
+        if (! request.isPageExists()) {
             sendResponse(new NotFoundResponse());
             MyLogger.logger.info("Didnt find: " + request.getRequestedPage());
             return;
