@@ -30,7 +30,7 @@ public class HTTPClient implements Runnable {
 
             request = getClientRequest();
 
-            System.out.println(request.getRequestHeader());
+            System.out.println(request.getShortRequestHeader());
             MyLogger.logger.info("Requested: " + request.getRequestHeader());
 
 

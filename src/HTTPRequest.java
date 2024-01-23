@@ -17,6 +17,7 @@ public class HTTPRequest {
     private String requestHeader;
     private String httpVersion;
     private boolean chunked;
+    private String shortRequestHeader;
 
 
     public HTTPRequest(String requestHeader) throws HttpRetryException, UnsupportedEncodingException {
@@ -27,7 +28,7 @@ public class HTTPRequest {
     private void parseRequestHeader() throws HttpRetryException, UnsupportedEncodingException {
 
         String[] lines = requestHeader.split("\r\n");
-
+        shortRequestHeader = lines[0];
         // First line contains the request type and requested page
         String[] firstLineParts = lines[0].split(" ");
         httpVersion = firstLineParts[firstLineParts.length - 1];
@@ -128,6 +129,10 @@ public class HTTPRequest {
 
     public boolean isChunked() {
         return chunked;
+    }
+
+    public String getShortRequestHeader() {
+        return shortRequestHeader;
     }
 
     public void setRequestedPage(String requestedPage) {
