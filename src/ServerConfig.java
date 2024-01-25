@@ -9,6 +9,7 @@ public class ServerConfig {
     private String defaultPage;
     private int maxThreads;
     private final String CONFIG_FILE_PATH = "config.ini";
+    private boolean loadSuccess;
 
     private ServerConfig() {
         loadConfig();
@@ -19,6 +20,14 @@ public class ServerConfig {
             instance = new ServerConfig();
         }
         return instance;
+    }
+
+    public boolean isLoadSuccess() {
+        return loadSuccess;
+    }
+
+    public void setLoadSuccess(boolean loadSuccess) {
+        this.loadSuccess = loadSuccess;
     }
 
     private void loadConfig() {
@@ -37,8 +46,11 @@ public class ServerConfig {
                     maxThreads = Integer.parseInt(line.split("=")[1].trim());
                 }
             }
+            loadSuccess = true;
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Failed loading server configurations. could not start server");
+            System.out.println(e);
+            loadSuccess = false;
         }
     }
 

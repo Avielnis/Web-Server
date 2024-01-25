@@ -27,11 +27,14 @@ public class HTTPClient implements Runnable {
             System.out.println(request.getShortRequestHeader());
             MyLogger.logger.info("Requested: " + request.getRequestHeader());
 
-
-            if (request.getType().equals("GET")) {
+            String requestType = request.getType();
+            if (requestType.equals("GET")) {
                 sendBackGET();
-            } else if (request.getType().equals("POST")) {
+            } else if (requestType.equals("POST")) {
                 sendBackPOST(request);
+            } else if (requestType.equals("HEAD")) {
+                sendBackHEAD();
+
             } else {
                 sendBack501();
             }
@@ -45,6 +48,20 @@ public class HTTPClient implements Runnable {
     }
 
     private void sendBackGET() throws IOException {
+        byte[] fileContent = loadFileContent();
+        if (fileContent == null) {
+            sendResponse(new InternalServerErrorResponse());
+        }
+        HttpResponse response = new OkResponse(fileContent);
+        if (request.isImage()) {
+            response.setContentTypeToImage();
+        } else if (request.isIcon()) {
+            response.setContentTypeToIcon();
+        }
+        sendResponse(response);
+    }
+
+    private byte[] loadFileContent() throws IOException {
         String pageFilePath = serverConfig.getRoot() + "/" + serverConfig.getDefaultPage();
         if (! request.getRequestedPage().equals("/")) {
             pageFilePath = serverConfig.getRoot() + request.getRequestedPage();
@@ -53,21 +70,14 @@ public class HTTPClient implements Runnable {
         if (! request.isPageExists()) {
             sendResponse(new NotFoundResponse());
             MyLogger.logger.info("Didnt find: " + request.getRequestedPage());
-            return;
+            return null;
         }
 
         File htmlFile = new File(pageFilePath);
         FileInputStream fileInputStream = new FileInputStream(htmlFile);
         byte[] fileContent = new byte[(int) htmlFile.length()];
         fileInputStream.read(fileContent);
-        HttpResponse response = new OkResponse(fileContent);
-
-        if (request.isImage()) {
-            response.setContentTypeToImage();
-        } else if (request.isIcon()) {
-            response.setContentTypeToIcon();
-        }
-        sendResponse(response);
+        return fileContent;
     }
 
 
@@ -97,6 +107,14 @@ public class HTTPClient implements Runnable {
                 .collect(Collectors.joining("\n"));
         htmlTemplate = htmlTemplate.replace("{content}", result);
         return htmlTemplate;
+    }
+
+    private void sendBackHEAD() throws IOException {
+        byte[] fileContent = loadFileContent();
+        HttpResponse response = new OkResponse(fileContent);
+        PrintWriter textStream = new PrintWriter(clientSocket.getOutputStream(), true);
+        textStream.println(response.getResponseHeader());
+        System.out.println(response.getResponseHeader());
     }
 
     private void sendBack501() throws IOException {

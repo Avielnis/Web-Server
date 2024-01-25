@@ -14,7 +14,7 @@ public class MyLogger {
     static {
         try {
 
-//            removeExsitingHandlaers();
+            removeExsitingHandlaers();
             // Create a FileHandler to save logs in "ServerLogs.log" file
             FileHandler fileHandler = new FileHandler("ServerLogs.log", true); // The true parameter appends to the existing file, if it exists.
 

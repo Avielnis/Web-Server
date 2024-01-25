@@ -8,13 +8,16 @@ public class TCPServer {
 
     private final ServerConfig serverConfig = ServerConfig.getInstance();
     private final List<HTTPClient> clients = new ArrayList<>();
-    private final Semaphore semaphore;
+    private Semaphore semaphore;
     private final Object clientsAddLock = new Object();
 
     public TCPServer() throws IOException {
-        MyLogger.removeExsitingHandlaers();
-        semaphore = new Semaphore(serverConfig.getMaxThreads());
+        if (! serverConfig.isLoadSuccess()) {
+            MyLogger.logger.severe("Failed loading config.ini");
+            return;
+        }
 
+        semaphore = new Semaphore(serverConfig.getMaxThreads());
         try (ServerSocket serverSocket = new ServerSocket(serverConfig.getPort())) {
             MyLogger.logger.info("Server starting on port: " + serverConfig.getPort());
             System.out.println("Server starting on port: " + serverConfig.getPort());
