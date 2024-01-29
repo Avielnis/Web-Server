@@ -40,6 +40,24 @@
     </style>
 </head>
 <body>
+<script>
+function showFormData() {
+    var sender = document.getElementById("sender").value;
+    var receiver = document.getElementById("receiver").value;
+    var subject = document.getElementById("subject").value;
+    var message = document.getElementById("message").value;
+
+    var resultDiv = document.getElementById("container");
+
+    resultDiv.innerHTML = "Sender: " + sender + "<br>";
+    resultDiv.innerHTML += "Receiver: " + receiver + "<br>";
+    resultDiv.innerHTML += "Subject: " + subject + "<br>";
+    resultDiv.innerHTML += "Message: " + message + "<br>";
+
+    return false; // Prevent the default form submission
+}
+</script>
+
 <div class="container">
     <h1>Get your params back</h1>
     {content}

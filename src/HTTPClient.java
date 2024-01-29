@@ -31,7 +31,7 @@ public class HTTPClient implements Runnable {
             if (requestType.equals("GET")) {
                 sendBackGET();
             } else if (requestType.equals("POST")) {
-                sendBackPOST(request);
+                sendBackPOST();
             } else if (requestType.equals("HEAD")) {
                 sendBackHEAD();
 
@@ -81,13 +81,13 @@ public class HTTPClient implements Runnable {
     }
 
 
-    private void sendBackPOST(HTTPRequest request) throws IOException {
+    private void sendBackPOST() throws IOException {
         if (! request.isPageExists()) {
             sendResponse(new NotFoundResponse());
             MyLogger.logger.info("Didnt find: " + request.getRequestedPage());
             return;
         }
-        request.setRequestedPage("params_info.html");
+//        request.setRequestedPage("params_info.html");
         String pageFilePath = serverConfig.getRoot() + "/" + request.getRequestedPage();
         File paramsHtmlFile = new File(pageFilePath);
         FileInputStream fileInputStream = new FileInputStream(paramsHtmlFile);
