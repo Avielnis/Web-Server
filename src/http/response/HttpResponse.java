@@ -65,6 +65,7 @@ public abstract class HttpResponse {
     public void setContentTypeToIcon() {
         this.contentType = "image/x-icon";
     }
+    public void setContentTypeToMessage(){this.contentType = "message/http";}
 
     @Override
     public String toString() {

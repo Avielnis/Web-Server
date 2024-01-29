@@ -24,7 +24,7 @@ public class HTTPClient implements Runnable {
         try {
             request = getClientRequest();
 
-            System.out.println(request.getShortRequestHeader());
+            System.out.println(request.getShortRequestHeader()+'\n');
             MyLogger.logger.info("Requested: " + request.getRequestHeader());
 
             String requestType = request.getType();
@@ -35,7 +35,10 @@ public class HTTPClient implements Runnable {
             } else if (requestType.equals("HEAD")) {
                 sendBackHEAD();
 
-            } else {
+            } else if(requestType.equals("TRACE")) {
+                sendBackTrace();
+            }
+            else {
                 sendBack501();
             }
 
@@ -115,6 +118,11 @@ public class HTTPClient implements Runnable {
         PrintWriter textStream = new PrintWriter(clientSocket.getOutputStream(), true);
         textStream.println(response.getResponseHeader());
         System.out.println(response.getResponseHeader());
+    }
+    private void sendBackTrace() throws IOException{
+        HttpResponse response = new OkResponse(request.getRequestHeader().getBytes());
+        response.setContentTypeToMessage();
+        sendResponse(response);
     }
 
     private void sendBack501() throws IOException {
