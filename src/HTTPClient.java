@@ -85,17 +85,7 @@ public class HTTPClient implements Runnable {
 
 
     private void sendBackPOST() throws IOException {
-        if (! request.isPageExists()) {
-            sendResponse(new NotFoundResponse());
-            MyLogger.logger.info("Didnt find: " + request.getRequestedPage());
-            return;
-        }
-//        request.setRequestedPage("params_info.html");
-        String pageFilePath = serverConfig.getRoot() + "/" + request.getRequestedPage();
-        File paramsHtmlFile = new File(pageFilePath);
-        FileInputStream fileInputStream = new FileInputStream(paramsHtmlFile);
-        byte[] fileContent = new byte[(int) paramsHtmlFile.length()];
-        fileInputStream.read(fileContent);
+        byte[] fileContent = loadFileContent();
         String htmlParamsPage = injectHTMLParams(request, fileContent);
         HttpResponse response = new OkResponse(htmlParamsPage.getBytes());
         sendResponse(response);
