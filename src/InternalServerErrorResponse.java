@@ -1,5 +1,3 @@
-package http.response;
-
 /**
  * Represents an HTTP response with a status code of 500 (Internal Server Error).
  * Some kind of error.

@@ -1,5 +1,3 @@
-package http.response;
-
 /**
  * Represents an HTTP response with a status code of 404 (Not Found).
  * If the file was not found.

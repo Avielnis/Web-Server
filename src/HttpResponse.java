@@ -1,5 +1,3 @@
-package http.response;
-
 public abstract class HttpResponse {
     protected int statusCode;
     protected String statusMessage;

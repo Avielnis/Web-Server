@@ -1,5 +1,3 @@
-package http.response;
-
 /**
  * Represents an HTTP response with a status code of 400 (Bad Request).
  * If the request’s format is invalid.
