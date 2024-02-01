@@ -39,7 +39,11 @@ public class ServerConfig {
                 if (line.startsWith("port")) {
                     port = Integer.parseInt(line.split("=")[1].trim());
                 } else if (line.startsWith("root")) {
-                    root = System.getProperty("user.home") + line.split("=")[1].trim().substring(1);
+                    if (line.contains("~")) {
+                        root = System.getProperty("user.home") + line.split("=")[1].trim().substring(1);
+                    } else {
+                        root = line.split("=")[1].trim();
+                    }
                 } else if (line.startsWith("defaultPage")) {
                     defaultPage = line.split("=")[1].trim();
                 } else if (line.startsWith("maxThreads")) {
