@@ -4,14 +4,25 @@
     <title>Computer Networks 2023: Exercise 1</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
         #moving-title {
             color: blue;
+            font-size: 36px;
             animation: moveTitle 1s linear infinite;
         }
 
         #fixed-title {
             color: red;
+            font-size: 24px;
+            text-align: center;
         }
+
         @keyframes moveTitle {
             0% { margin-left: 0; }
             50% { margin-left: 50px; }
@@ -21,50 +32,106 @@
         .center {
             display: flex;
             justify-content: center;
+            margin-top: 20px;
+        }
+
+        img {
+            width: 300px;
+            height: 300px;
+            margin: 10px;
+            border: 2px solid #333;
+            border-radius: 10px;
+        }
+
+        h1, h2, h3 {
+            text-align: center;
         }
 
         hr {
             border: 1px solid #000;
+            margin: 20px auto;
         }
-		
-		img {
-			width:300px;
-			height:300px;
-		}
-        h1, h2, h3 {
-            text-align: center;
+
+        a {
+            text-decoration: none;
+            color: #0077cc;
         }
-		
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        form {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        label {
+            display: block;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        input[type="submit"] {
+            background-color: #0077cc;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0055aa;
+        }
     </style>
 </head>
 <body>
-    <h1 id="moving-title">Computer Networks 2023: Exercise 1</h1>
-    <h2 id="fixed-title">Aviel Nisanov</h2>
-    
-    <div class="center">
-        <img src="image1.jpg" alt="Image 1">
-        <img src="image2.jpg" alt="Image 2">
-    </div>
+<h1 id="moving-title">Computer Networks 2023: Exercise 1</h1>
+<h2 id="fixed-title">Aviel Nisanov</h2>
 
-    <h3><a href="https://moodle.runi.ac.il/2024/course/view.php?id=2401572">Course Website</a></h3>
-    <h3><a href="https://soap2dayx.to/home">My Favorite Website</a></h3>
-    
-    <hr>
+<div class="center">
+    <img src="image1.jpg" alt="Image 1">
+    <img src="image2.jpg" alt="Image 2">
+</div>
 
-    <form method="post" action="params_info.html">
-        <label for="sender">Sender:</label>
-        <input type="text" id="sender" name="sender"><br><br>
-        
-        <label for="receiver">Receiver:</label>
-        <input type="text" id="receiver" name="receiver"><br><br>
-        
-        <label for="subject">Subject:</label>
-        <input type="text" id="subject" name="subject"><br><br>
-        
-        <label for="message">Message:</label><br>
-        <textarea id="message" name="message" rows="4" cols="50"></textarea><br><br>
-        
-        <input type="submit" value="Submit">
-    </form>
+<h3><a href="https://moodle.runi.ac.il/2024/course/view.php?id=2401572">Course Website</a></h3>
+<h3><a href="https://soap2dayx.to/home">My Favorite Website</a></h3>
+
+<hr>
+
+<form method="post" action="params_info.html">
+    <label for="sender">Sender:</label>
+    <input type="text" id="sender" name="sender">
+
+    <label for="receiver">Receiver:</label>
+    <input type="text" id="receiver" name="receiver">
+
+    <label for="subject">Subject:</label>
+    <input type="text" id="subject" name="subject">
+
+    <label for="message">Message:</label>
+    <textarea id="message" name="message" rows="4" cols="50"></textarea>
+
+    <input type="submit" value="Submit">
+</form>
 </body>
 </html>
