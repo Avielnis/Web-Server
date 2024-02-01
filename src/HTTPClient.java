@@ -1,4 +1,5 @@
 import java.io.*;
+import java.net.HttpRetryException;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -41,10 +42,35 @@ public class HTTPClient implements Runnable {
             }
 
 
-        } catch (IOException e) {
-            MyLogger.logger.severe("Failed handling request at port: " + port);
-        } catch (NullPointerException e) {
+        }  catch (NullPointerException e) {
             MyLogger.logger.severe("Input request is null at port: " + port);
+            try {
+                request = new HTTPRequest(null);
+                sendErrorResponse(new InternalServerErrorResponse());
+            }
+            catch (IOException e1){
+                return;
+            }
+        }
+        catch (HttpRetryException | UnsupportedEncodingException e)
+        {
+            MyLogger.logger.severe("failed parsing request");
+            try {
+                sendErrorResponse(new BadRequestResponse());
+            }
+            catch (IOException e1){
+                return;
+            }
+        }
+        catch (IOException e) {
+            MyLogger.logger.severe("failed parsing request");
+            try {
+                sendErrorResponse(new InternalServerErrorResponse());
+            }
+            catch (IOException e1){
+                return;
+            }
+
         }
     }
 
@@ -184,6 +210,11 @@ public class HTTPClient implements Runnable {
         return request.toString();
     }
 
+    public void sendErrorResponse(HttpResponse response) throws IOException{
+        PrintWriter textStream = new PrintWriter(clientSocket.getOutputStream(), true);
+        textStream.println(response);
+        System.out.println(response.getResponseHeader());
+    }
 
     public Socket getClientSocket() {
         return clientSocket;
