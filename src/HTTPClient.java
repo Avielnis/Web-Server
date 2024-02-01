@@ -24,18 +24,21 @@ public class HTTPClient implements Runnable {
         try {
             request = getClientRequest();
 
-            System.out.println(request.getShortRequestHeader());
+            System.out.println(request.getShortRequestHeader()+'\n');
             MyLogger.logger.info("Requested: " + request.getRequestHeader());
 
             String requestType = request.getType();
             if (requestType.equals("GET")) {
                 sendBackGET();
             } else if (requestType.equals("POST")) {
-                sendBackPOST(request);
+                sendBackPOST();
             } else if (requestType.equals("HEAD")) {
                 sendBackHEAD();
 
-            } else {
+            } else if(requestType.equals("TRACE")) {
+                sendBackTrace();
+            }
+            else {
                 sendBack501();
             }
 
@@ -81,18 +84,8 @@ public class HTTPClient implements Runnable {
     }
 
 
-    private void sendBackPOST(HTTPRequest request) throws IOException {
-        if (! request.isPageExists()) {
-            sendResponse(new NotFoundResponse());
-            MyLogger.logger.info("Didnt find: " + request.getRequestedPage());
-            return;
-        }
-        request.setRequestedPage("params_info.html");
-        String pageFilePath = serverConfig.getRoot() + "/" + request.getRequestedPage();
-        File paramsHtmlFile = new File(pageFilePath);
-        FileInputStream fileInputStream = new FileInputStream(paramsHtmlFile);
-        byte[] fileContent = new byte[(int) paramsHtmlFile.length()];
-        fileInputStream.read(fileContent);
+    private void sendBackPOST() throws IOException {
+        byte[] fileContent = loadFileContent();
         String htmlParamsPage = injectHTMLParams(request, fileContent);
         HttpResponse response = new OkResponse(htmlParamsPage.getBytes());
         sendResponse(response);
@@ -115,6 +108,11 @@ public class HTTPClient implements Runnable {
         PrintWriter textStream = new PrintWriter(clientSocket.getOutputStream(), true);
         textStream.println(response.getResponseHeader());
         System.out.println(response.getResponseHeader());
+    }
+    private void sendBackTrace() throws IOException{
+        HttpResponse response = new OkResponse(request.getRequestHeader().getBytes());
+        response.setContentTypeToMessage();
+        sendResponse(response);
     }
 
     private void sendBack501() throws IOException {
