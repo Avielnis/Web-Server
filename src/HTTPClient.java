@@ -23,7 +23,7 @@ public class HTTPClient implements Runnable {
         try {
             request = getClientRequest();
 
-            System.out.println(request.getShortRequestHeader()+'\n');
+            System.out.println(request.getShortRequestHeader() + '\n');
             MyLogger.logger.info("Requested: " + request.getRequestHeader());
 
             String requestType = request.getType();
@@ -34,43 +34,30 @@ public class HTTPClient implements Runnable {
             } else if (requestType.equals("HEAD")) {
                 sendBackHEAD();
 
-            } else if(requestType.equals("TRACE")) {
+            } else if (requestType.equals("TRACE")) {
                 sendBackTrace();
-            }
-            else {
+            } else {
                 sendBack501();
             }
 
 
-        }  catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             MyLogger.logger.severe("Input request is null at port: " + port);
             try {
                 request = new HTTPRequest(null);
-                sendErrorResponse(new InternalServerErrorResponse());
-            }
-            catch (IOException e1){
+            } catch (Exception e2) {
+                MyLogger.logger.severe("Failed creating a null request");
                 return;
             }
-        }
-        catch (HttpRetryException | UnsupportedEncodingException e)
-        {
-            MyLogger.logger.severe("failed parsing request");
-            try {
-                sendErrorResponse(new BadRequestResponse());
-            }
-            catch (IOException e1){
-                return;
-            }
-        }
-        catch (IOException e) {
-            MyLogger.logger.severe("failed parsing request");
-            try {
-                sendErrorResponse(new InternalServerErrorResponse());
-            }
-            catch (IOException e1){
-                return;
-            }
+            sendErrorResponse(new InternalServerErrorResponse());
 
+        } catch (HttpRetryException | UnsupportedEncodingException e) {
+            MyLogger.logger.severe("failed parsing request");
+            sendErrorResponse(new BadRequestResponse());
+
+        } catch (IOException e) {
+            MyLogger.logger.severe("failed parsing request");
+            sendErrorResponse(new InternalServerErrorResponse());
         }
     }
 
@@ -87,26 +74,6 @@ public class HTTPClient implements Runnable {
         }
         sendResponse(response);
     }
-
-    private byte[] loadFileContent() throws IOException {
-        String pageFilePath = serverConfig.getRoot() + "/" + serverConfig.getDefaultPage();
-        if (! request.getRequestedPage().equals("/")) {
-            pageFilePath = serverConfig.getRoot() + request.getRequestedPage();
-        }
-
-        if (! request.isPageExists()) {
-            sendResponse(new NotFoundResponse());
-            MyLogger.logger.info("Didnt find: " + request.getRequestedPage());
-            return null;
-        }
-
-        File htmlFile = new File(pageFilePath);
-        FileInputStream fileInputStream = new FileInputStream(htmlFile);
-        byte[] fileContent = new byte[(int) htmlFile.length()];
-        fileInputStream.read(fileContent);
-        return fileContent;
-    }
-
 
     private void sendBackPOST() throws IOException {
         byte[] fileContent = loadFileContent();
@@ -133,7 +100,8 @@ public class HTTPClient implements Runnable {
         textStream.println(response.getResponseHeader());
         System.out.println(response.getResponseHeader());
     }
-    private void sendBackTrace() throws IOException{
+
+    private void sendBackTrace() throws IOException {
         HttpResponse response = new OkResponse(request.getRequestHeader().getBytes());
         response.setContentTypeToMessage();
         sendResponse(response);
@@ -186,6 +154,15 @@ public class HTTPClient implements Runnable {
         System.out.println(response.getResponseHeader());
     }
 
+    public void sendErrorResponse(HttpResponse response) {
+        try {
+            PrintWriter textStream = new PrintWriter(clientSocket.getOutputStream(), true);
+            textStream.println(response);
+            System.out.println(response.getResponseHeader());
+        } catch (IOException e) {
+            MyLogger.logger.severe("Filed sending Error response");
+        }
+    }
 
     private HTTPRequest getClientRequest() throws IOException {
         String fullRequest = readFullRequest();
@@ -210,10 +187,23 @@ public class HTTPClient implements Runnable {
         return request.toString();
     }
 
-    public void sendErrorResponse(HttpResponse response) throws IOException{
-        PrintWriter textStream = new PrintWriter(clientSocket.getOutputStream(), true);
-        textStream.println(response);
-        System.out.println(response.getResponseHeader());
+    private byte[] loadFileContent() throws IOException {
+        String pageFilePath = serverConfig.getRoot() + "/" + serverConfig.getDefaultPage();
+        if (! request.getRequestedPage().equals("/")) {
+            pageFilePath = serverConfig.getRoot() + request.getRequestedPage();
+        }
+
+        if (! request.isPageExists()) {
+            sendResponse(new NotFoundResponse());
+            MyLogger.logger.info("Didnt find: " + request.getRequestedPage());
+            return null;
+        }
+
+        File htmlFile = new File(pageFilePath);
+        FileInputStream fileInputStream = new FileInputStream(htmlFile);
+        byte[] fileContent = new byte[(int) htmlFile.length()];
+        fileInputStream.read(fileContent);
+        return fileContent;
     }
 
     public Socket getClientSocket() {
