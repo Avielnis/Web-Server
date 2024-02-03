@@ -67,18 +67,16 @@ public class HTTPClient implements Runnable {
             sendResponse(new InternalServerErrorResponse());
         }
         HttpResponse response = new OkResponse(fileContent);
-        if (request.isImage()) {
-            response.setContentTypeToImage();
-        } else if (request.isIcon()) {
-            response.setContentTypeToIcon();
-        }
+        factoryRequestType(response);
         sendResponse(response);
     }
 
     private void sendBackPOST() throws IOException {
         byte[] fileContent = loadFileContent();
         String htmlParamsPage = injectHTMLParams(request, fileContent);
-        HttpResponse response = new OkResponse(htmlParamsPage.getBytes());
+//        HttpResponse response = new OkResponse(htmlParamsPage.getBytes());
+        HttpResponse response = new OkResponse(fileContent);
+        factoryRequestType(response);
         sendResponse(response);
 
     }
@@ -167,6 +165,16 @@ public class HTTPClient implements Runnable {
     private HTTPRequest getClientRequest() throws IOException {
         String fullRequest = readFullRequest();
         return new HTTPRequest(fullRequest);
+    }
+
+    public void factoryRequestType(HttpResponse response) {
+        if (request.isHtmlText()) {
+            response.setContentTypeToHtmlText();
+        } else if (request.isImage()) {
+            response.setContentTypeToImage();
+        } else if (request.isIcon()) {
+            response.setContentTypeToIcon();
+        }
     }
 
     private String readFullRequest() throws IOException {

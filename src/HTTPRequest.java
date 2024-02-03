@@ -175,6 +175,13 @@ public class HTTPRequest {
         return false;
     }
 
+    public boolean isHtmlText() {
+        if (requestedPage.endsWith(".html") || requestedPage.equals("/")) {
+            return true;
+        }
+        return false;
+    }
+
     public int getContentLength() {
         return contentLength;
     }
