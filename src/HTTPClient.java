@@ -74,8 +74,7 @@ public class HTTPClient implements Runnable {
     private void sendBackPOST() throws IOException {
         byte[] fileContent = loadFileContent();
         String htmlParamsPage = injectHTMLParams(request, fileContent);
-//        HttpResponse response = new OkResponse(htmlParamsPage.getBytes());
-        HttpResponse response = new OkResponse(fileContent);
+        HttpResponse response = new OkResponse(htmlParamsPage.getBytes());
         factoryRequestType(response);
         sendResponse(response);
 
@@ -85,9 +84,10 @@ public class HTTPClient implements Runnable {
         String htmlTemplate = new String(fileContent);
         HashMap<String, String> params = request.getParameters();
         String result = params.entrySet().stream()
-                .map(entry -> "<p>" + entry.getKey() + ": " + entry.getValue() + "</p>")
+                .map(entry -> "<p>" + entry.getKey() + ": " + entry.getValue() + "</p><br/>")
                 .collect(Collectors.joining("\n"));
-        htmlTemplate = htmlTemplate.replace("{content}", result);
+        result = "<div>"+ result+ "</div></body>";
+        htmlTemplate = htmlTemplate.replace("</body>", result);
         return htmlTemplate;
     }
 
