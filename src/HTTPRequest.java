@@ -29,7 +29,6 @@ public class HTTPRequest {
 
         String[] lines = requestHeader.split("\r\n");
         shortRequestHeader = lines[0];
-        // First line contains the request type and requested page
         String[] firstLineParts = lines[0].split(" ");
         httpVersion = firstLineParts[firstLineParts.length - 1];
         if (! httpVersion.equals("HTTP/1.0") && ! httpVersion.equals("HTTP/1.1")) {
@@ -39,7 +38,6 @@ public class HTTPRequest {
 
         if (firstLineParts.length >= 2) {
             type = firstLineParts[0];
-            // Extract the requested page portion without parameters
             String requestedPath = firstLineParts[1];
             int paramIndex = requestedPath.indexOf('?');
             if (paramIndex != - 1) {
@@ -75,7 +73,6 @@ public class HTTPRequest {
     }
 
     public void parseParams(String paramString) throws UnsupportedEncodingException {
-        // Parse parameters from the requested page (if any)
         parameters = new HashMap<>();
         int spaceIndex = paramString.indexOf(' ');
         if (spaceIndex != - 1) {
@@ -114,7 +111,6 @@ public class HTTPRequest {
         }
     }
 
-    // Getter methods for accessing parsed data
     public String getType() {
         return type;
     }

@@ -123,7 +123,6 @@ public class HTTPClient implements Runnable {
             return;
         }
         response.setChunked();
-        // Convert response to a string representation
         String responseHeader = response.getResponseHeader();
         byteStream.write(responseHeader.getBytes());
 
@@ -136,19 +135,16 @@ public class HTTPClient implements Runnable {
             int chunkSize = Math.min(bufferSize, responseBytes.length - offset);
             byte[] chunk = Arrays.copyOfRange(responseBytes, offset, offset + chunkSize);
 
-            // Send the size of the chunk in hexadecimal
             textStream.println(Integer.toHexString(chunk.length));
-            // Send the chunk itself
             byteStream.write(chunk);
             byteStream.flush();
             textStream.println(); // End of chunk
 
             offset += chunkSize;
         }
-
         // Send a zero-length chunk to indicate the end of the response
         textStream.println("0");
-        textStream.println(); // End of the chunked response
+        textStream.println();
         System.out.println(response.getResponseHeader());
     }
 

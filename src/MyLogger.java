@@ -15,16 +15,9 @@ public class MyLogger {
         try {
 
             removeExsitingHandlaers();
-            // Create a FileHandler to save logs in "ServerLogs.log" file
             FileHandler fileHandler = new FileHandler("ServerLogs.log", true); // The true parameter appends to the existing file, if it exists.
-
-            // Create a SimpleFormatter to format log messages
             fileHandler.setFormatter(new CustomLogFormatter());
-
-            // Add the FileHandler to the logger
             logger.addHandler(fileHandler);
-
-            // Set the desired log level (e.g., INFO, WARNING, SEVERE)
             logger.setLevel(Level.INFO);
 
             logger.info("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");

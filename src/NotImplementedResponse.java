@@ -1,6 +1,6 @@
 /**
  * Represents an HTTP response with a status code of 501 (Not Implemented).
- * If the method used is unknown (a Method is like “GET”).
+ * If the method used is unknown
  */
 public class NotImplementedResponse extends HttpResponse {
     private static final String HTML_501_PAGE =
