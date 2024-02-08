@@ -8,7 +8,7 @@ public class ServerConfig {
     private String root;
     private String defaultPage;
     private int maxThreads;
-    private final String CONFIG_FILE_PATH = "config.ini";
+    private final String CONFIG_FILE_PATH = "../config.ini";
     private boolean loadSuccess;
 
     private ServerConfig() {

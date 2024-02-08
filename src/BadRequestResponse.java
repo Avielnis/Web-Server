@@ -51,7 +51,6 @@ public class BadRequestResponse extends HttpResponse {
             "<body>\n" +
             "    <div class=\"container\">\n" +
             "        <h1>400 - Bad Request</h1>\n" +
-            "        <p>The page you are looking for could not be found.</p>\n" +
             "        <p>Return to the <a href=\"/\">home page</a>.</p>\n" +
             "    </div>\n" +
             "</body>\n" +

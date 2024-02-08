@@ -51,7 +51,6 @@ public class InternalServerErrorResponse extends HttpResponse {
                     "<body>\n" +
                     "    <div class=\"container\">\n" +
                     "        <h1>500 - Internal Server Error</h1>\n" +
-                    "        <p>The requested functionality is not implemented on this server.</p>\n" +
                     "        <p>Return to the <a href=\"/\">home page</a>.</p>\n" +
                     "    </div>\n" +
                     "</body>\n" +
