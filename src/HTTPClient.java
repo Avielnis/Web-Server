@@ -73,20 +73,25 @@ public class HTTPClient implements Runnable {
 
     private void sendBackPOST() throws IOException {
         byte[] fileContent = loadFileContent();
-        String htmlParamsPage = injectHTMLParams(request, fileContent);
-        HttpResponse response = new OkResponse(htmlParamsPage.getBytes());
+        HttpResponse response = null;
+        if (request.getParameters().size() != 0) {
+            String htmlParamsPage = injectHTMLParams(fileContent);
+            response = new OkResponse(htmlParamsPage.getBytes());
+        } else {
+            response = new OkResponse(fileContent);
+        }
         factoryRequestType(response);
         sendResponse(response);
 
     }
 
-    private String injectHTMLParams(HTTPRequest request, byte[] fileContent) {
+    private String injectHTMLParams(byte[] fileContent) {
         String htmlTemplate = new String(fileContent);
         HashMap<String, String> params = request.getParameters();
         String result = params.entrySet().stream()
                 .map(entry -> "<p>" + entry.getKey() + ": " + entry.getValue() + "</p><br/>")
                 .collect(Collectors.joining("\n"));
-        result = "<div>"+ result+ "</div></body>";
+        result = "<div>" + result + "</div></body>";
         htmlTemplate = htmlTemplate.replace("</body>", result);
         return htmlTemplate;
     }
