@@ -64,7 +64,8 @@ public class HTTPClient implements Runnable {
     private void sendBackGET() throws IOException {
         byte[] fileContent = loadFileContent();
         if (fileContent == null) {
-            sendResponse(new InternalServerErrorResponse());
+            sendResponse(new NotFoundResponse());
+            return;
         }
         HttpResponse response = new OkResponse(fileContent);
         factoryRequestType(response);
@@ -73,6 +74,10 @@ public class HTTPClient implements Runnable {
 
     private void sendBackPOST() throws IOException {
         byte[] fileContent = loadFileContent();
+        if (fileContent == null) {
+            sendResponse(new NotFoundResponse());
+            return;
+        }
         HttpResponse response = null;
         if (request.getParameters().size() != 0) {
             String htmlParamsPage = injectHTMLParams(fileContent);
@@ -88,9 +93,7 @@ public class HTTPClient implements Runnable {
     private String injectHTMLParams(byte[] fileContent) {
         String htmlTemplate = new String(fileContent);
         HashMap<String, String> params = request.getParameters();
-        String result = params.entrySet().stream()
-                .map(entry -> "<p>" + entry.getKey() + ": " + entry.getValue() + "</p><br/>")
-                .collect(Collectors.joining("\n"));
+        String result = params.entrySet().stream().map(entry -> "<p>" + entry.getKey() + ": " + entry.getValue() + "</p><br/>").collect(Collectors.joining("\n"));
         result = "<div>" + result + "</div></body>";
         htmlTemplate = htmlTemplate.replace("</body>", result);
         return htmlTemplate;
@@ -98,7 +101,13 @@ public class HTTPClient implements Runnable {
 
     private void sendBackHEAD() throws IOException {
         byte[] fileContent = loadFileContent();
-        HttpResponse response = new OkResponse(fileContent);
+        HttpResponse response = null;
+        if (fileContent == null) {
+            response = new NotFoundResponse();
+        } else {
+            response = new OkResponse(fileContent);
+            factoryRequestType(response);
+        }
         PrintWriter textStream = new PrintWriter(clientSocket.getOutputStream(), true);
         textStream.println(response.getResponseHeader());
         System.out.println(response.getResponseHeader());
@@ -203,7 +212,6 @@ public class HTTPClient implements Runnable {
         }
 
         if (! request.isPageExists()) {
-            sendResponse(new NotFoundResponse());
             MyLogger.logger.info("Didnt find: " + request.getRequestedPage());
             return null;
         }
