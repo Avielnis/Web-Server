@@ -206,14 +206,14 @@ public class HTTPClient implements Runnable {
     }
 
     private byte[] loadFileContent() throws IOException {
-        String pageFilePath = serverConfig.getRoot() + "/" + serverConfig.getDefaultPage();
-        if (! request.getRequestedPage().equals("/")) {
-            pageFilePath = serverConfig.getRoot() + request.getRequestedPage();
-        }
-
         if (! request.isPageExists()) {
             MyLogger.logger.info("Didnt find: " + request.getRequestedPage());
             return null;
+        }
+
+        String pageFilePath = serverConfig.getRoot() + "/" + serverConfig.getDefaultPage();
+        if (! request.getRequestedPage().equals("/")) {
+            pageFilePath = serverConfig.getRoot() + request.getRequestedPage();
         }
 
         File htmlFile = new File(pageFilePath);

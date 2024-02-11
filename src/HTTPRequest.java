@@ -45,7 +45,10 @@ public class HTTPRequest {
             } else {
                 requestedPage = requestedPath;
             }
-            requestedPage = requestedPage.substring(requestedPage.lastIndexOf('/'));
+            if (requestedPage.contains("..")) {
+                requestedPage = requestedPage.replace("..", "").replaceAll("/+", "/");
+            }
+
         }
 
         // Parse other headers
@@ -139,7 +142,8 @@ public class HTTPRequest {
         if (requestedPage.equals("/")) {
             return true;
         }
-        Path filePath = Paths.get(ServerConfig.getInstance().getRoot() + requestedPage.substring(requestedPage.lastIndexOf('/')));
+        Path filePath = Paths.get(ServerConfig.getInstance().getRoot() + requestedPage);
+
         return Files.exists(filePath) && Files.isRegularFile(filePath);
     }
 
