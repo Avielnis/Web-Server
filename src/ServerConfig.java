@@ -74,17 +74,4 @@ public class ServerConfig {
         return maxThreads;
     }
 
-    public static void main(String[] args) {
-        ServerConfig serverConfig = ServerConfig.getInstance();
-
-        int port = serverConfig.getPort();
-        String root = serverConfig.getRoot();
-        String defaultPage = serverConfig.getDefaultPage();
-        int maxThreads = serverConfig.getMaxThreads();
-
-        System.out.println("Port: " + port);
-        System.out.println("Root: " + root);
-        System.out.println("Default Page: " + defaultPage);
-        System.out.println("Max Threads: " + maxThreads);
-    }
 }
