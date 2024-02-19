@@ -188,6 +188,10 @@ public class HTTPClient implements Runnable {
             response.setContentTypeToImage();
         } else if (request.isIcon()) {
             response.setContentTypeToIcon();
+        } else if (request.isCSS()) {
+            response.setContentTypeToCSS();
+        } else if (request.isJS()) {
+            response.setContentTypeToJS();
         }
     }
 

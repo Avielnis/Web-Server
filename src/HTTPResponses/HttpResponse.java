@@ -66,6 +66,14 @@ public abstract class HttpResponse {
         this.contentType = "text/html";
     }
 
+    public void setContentTypeToCSS() {
+        this.contentType = "text/css";
+    }
+
+    public void setContentTypeToJS() {
+        this.contentType = "text/javascript";
+    }
+
     @Override
     public String toString() {
         return getResponseHeader() + getBody();

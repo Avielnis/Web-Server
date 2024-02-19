@@ -158,7 +158,7 @@ public class HTTPRequest {
         if (dotIndex == - 1) {
             return false;
         }
-        String extension = requestedPage.substring(dotIndex);
+        String extension = requestedPage.substring(dotIndex).toLowerCase();
         if (extension.equals(".bmp") || extension.equals(".gif") || extension.equals(".png") || extension.equals(".jpg")) {
             return true;
         }
@@ -178,10 +178,15 @@ public class HTTPRequest {
     }
 
     public boolean isHtmlText() {
-        if (requestedPage.endsWith(".html") || requestedPage.equals("/")) {
-            return true;
-        }
-        return false;
+        return requestedPage.endsWith(".html") || requestedPage.equals("/");
+    }
+
+    public boolean isCSS() {
+        return requestedPage.endsWith(".css");
+    }
+
+    public boolean isJS() {
+        return requestedPage.endsWith(".js");
     }
 
     public int getContentLength() {
