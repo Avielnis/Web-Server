@@ -1,38 +1,29 @@
-# Networks-Web-Server
+# Multi-threaded TCP Web Server
 
-Classes:
+## Description
+This project is a Java-based multi-threaded TCP web server. It handles HTTP requests and responses over TCP connections, providing a lightweight framework for developing web applications or services.
 
-HTTPResponses.HttpResponse - father class for HTTPResponses,
-this class construct the needed HTTP response
+## Features
+- Multi-threaded processing for concurrent request handling.
+- Basic HTTP request and response handling.
+- Customizable server configurations.
+- Simple logging mechanism for server activities.
+- Support for static content serving.
 
-    HTTPResponses.BadRequestResponse;
-    HTTPResponses.InternalServerErrorResponse;
-    HTTPResponses.NotFoundResponse,
-    HTTPResponses.NotImplementedResponse,
-    HTTPResponses.OkResponse
-All specific responses that exist.
+## Requirements
+- Java 11 or higher.
 
-HTTPClient - this is the class that each thread runs,
-this is the main logic of each thread for each Socket.
-decides what to do.
+## Installation
+1. Clone the repository to your local machine.
+2. Navigate to the project directory.
+3. Compile the Java files using your preferred Java compiler or build system.
 
-HTTPRequest - the class that parses a request.
+## Usage
+To start the server, run `compile.sh` and then `run.sh` to run without an IDE. 
 
-Utils.ServerLogger - a class that logs running of the server
-into a file called ServerLogs.log
+## Configuration
+Edit `config.ini` to change server parameters. 
+You can set the server's port (`8080`), root directory (`www/lab/html`), default webpage (`index.html`), and maximum number of concurrent threads (`10`).
 
-Utils.ServerConfig - a singleton class that parses the config.ini file.
-
-TCPServer - is the class of the main thread that 
-accepts new socket connections, opens new threads for each connection
-and closes the sockets on finish. 
-
-Main - where the program begins and a TCPServer instance is created.
-
-The design is the follows:
-TCPServer loads the serverConfig and then listening
-to new sockets.
-flow:
-    new socket connection arrives -> open new thread -> parse the request
-    -> create response -> send response -> close socket
-
+## Contributing
+Contributions are welcome! Please fork the repository and open a pull request with your changes.
