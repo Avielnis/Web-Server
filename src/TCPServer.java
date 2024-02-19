@@ -1,3 +1,6 @@
+import Utils.ServerConfig;
+import Utils.ServerLogger;
+
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
@@ -13,26 +16,28 @@ public class TCPServer {
 
     public TCPServer() throws IOException {
         if (! serverConfig.isLoadSuccess()) {
-            MyLogger.logger.severe("Failed loading config.ini");
+            ServerLogger.logger.severe("Failed loading config.ini");
             return;
         }
 
         semaphore = new Semaphore(serverConfig.getMaxThreads());
         try (ServerSocket serverSocket = new ServerSocket(serverConfig.getPort())) {
-            MyLogger.logger.info("Server starting on port: " + serverConfig.getPort());
+            ServerLogger.logger.info("Server starting on port: " + serverConfig.getPort());
             System.out.println("Server starting on port: " + serverConfig.getPort());
+            System.out.println("Server url: http://127.0.0.1:"+serverConfig.getPort() + "\n");
+
 
             while (true) {
                 try {
                     Socket newClientSocket = serverSocket.accept();
-                    MyLogger.logger.info("New client connected at port: " + newClientSocket.getPort());
+                    ServerLogger.logger.info("New client connected at port: " + newClientSocket.getPort());
 
                     // Limit number of concurrent threads
                     semaphore.acquire();
                     synchronized (clientsAddLock) {
                         clients.add(new HTTPClient(newClientSocket));
                     }
-                    MyLogger.logger.info("Number of active clients: " + clients.size());
+                    ServerLogger.logger.info("Number of active clients: " + clients.size());
                     new Thread(() -> {
                         try {
                             new HTTPClient(newClientSocket).run();
@@ -43,10 +48,10 @@ public class TCPServer {
                     }).start();
 
                 } catch (IOException e) {
-                    MyLogger.logger.info("Failed connecting new client");
+                    ServerLogger.logger.info("Failed connecting new client");
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    MyLogger.logger.info("Server thread interrupted");
+                    ServerLogger.logger.info("Server thread interrupted");
                 }
             }
 
@@ -63,12 +68,12 @@ public class TCPServer {
         synchronized (clientsAddLock) {
             clients.removeIf(client -> client.getClientSocket().equals(clientSocket));
         }
-        MyLogger.logger.info("Client disconnected: " + clientSocket.getPort());
-        MyLogger.logger.info("Number of active clients: " + clients.size());
+        ServerLogger.logger.info("Client disconnected: " + clientSocket.getPort());
+        ServerLogger.logger.info("Number of active clients: " + clients.size());
         try {
             clientSocket.close();
         } catch (IOException e) {
-            MyLogger.logger.info("Failed closing client: " + clientSocket.getPort());
+            ServerLogger.logger.info("Failed closing client: " + clientSocket.getPort());
         }
     }
 

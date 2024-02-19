@@ -1,3 +1,7 @@
+import HTTPResponses.*;
+import Utils.ServerConfig;
+import Utils.ServerLogger;
+
 import java.io.*;
 import java.net.HttpRetryException;
 import java.net.Socket;
@@ -24,7 +28,7 @@ public class HTTPClient implements Runnable {
             request = getClientRequest();
 
             System.out.println(request.getShortRequestHeader() + '\n');
-            MyLogger.logger.info("Requested: " + request.getRequestHeader());
+            ServerLogger.logger.info("Requested: " + request.getRequestHeader());
 
             String requestType = request.getType();
             if (requestType.equals("GET")) {
@@ -42,21 +46,21 @@ public class HTTPClient implements Runnable {
 
 
         } catch (NullPointerException e) {
-            MyLogger.logger.severe("Input request is null at port: " + port);
+            ServerLogger.logger.severe("Input request is null at port: " + port);
             try {
                 request = new HTTPRequest(null);
             } catch (Exception e2) {
-                MyLogger.logger.severe("Failed creating a null request");
+                ServerLogger.logger.severe("Failed creating a null request");
                 return;
             }
             sendErrorResponse(new InternalServerErrorResponse());
 
         } catch (HttpRetryException | UnsupportedEncodingException e) {
-            MyLogger.logger.severe("failed parsing request");
+            ServerLogger.logger.severe("failed parsing request");
             sendErrorResponse(new BadRequestResponse());
 
         } catch (IOException e) {
-            MyLogger.logger.severe("failed parsing request");
+            ServerLogger.logger.severe("failed parsing request");
             sendErrorResponse(new InternalServerErrorResponse());
         }
     }
@@ -168,7 +172,7 @@ public class HTTPClient implements Runnable {
             textStream.println(response);
             System.out.println(response.getResponseHeader());
         } catch (IOException e) {
-            MyLogger.logger.severe("Filed sending Error response");
+            ServerLogger.logger.severe("Filed sending Error response");
         }
     }
 
@@ -207,7 +211,7 @@ public class HTTPClient implements Runnable {
 
     private byte[] loadFileContent() throws IOException {
         if (! request.isPageExists()) {
-            MyLogger.logger.info("Didnt find: " + request.getRequestedPage());
+            ServerLogger.logger.info("Didnt find: " + request.getRequestedPage());
             return null;
         }
 

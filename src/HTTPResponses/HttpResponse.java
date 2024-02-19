@@ -1,3 +1,5 @@
+package HTTPResponses;
+
 public abstract class HttpResponse {
     protected int statusCode;
     protected String statusMessage;

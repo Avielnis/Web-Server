@@ -1,6 +1,6 @@
 #!/bin/bash
 
-out_dir="out"
+out_dir="out_dir"
 
 cd "$out_dir" || exit 1
 

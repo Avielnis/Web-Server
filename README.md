@@ -2,14 +2,14 @@
 
 Classes:
 
-HttpResponse - father class for HTTPResponses,
+HTTPResponses.HttpResponse - father class for HTTPResponses,
 this class construct the needed HTTP response
 
-    BadRequestResponse;
-    InternalServerErrorResponse;
-    NotFoundResponse,
-    NotImplementedResponse,
-    OkResponse
+    HTTPResponses.BadRequestResponse;
+    HTTPResponses.InternalServerErrorResponse;
+    HTTPResponses.NotFoundResponse,
+    HTTPResponses.NotImplementedResponse,
+    HTTPResponses.OkResponse
 All specific responses that exist.
 
 HTTPClient - this is the class that each thread runs,
@@ -18,10 +18,10 @@ decides what to do.
 
 HTTPRequest - the class that parses a request.
 
-MyLogger - a class that logs running of the server
+Utils.ServerLogger - a class that logs running of the server
 into a file called ServerLogs.log
 
-ServerConfig - a singleton class that parses the config.ini file.
+Utils.ServerConfig - a singleton class that parses the config.ini file.
 
 TCPServer - is the class of the main thread that 
 accepts new socket connections, opens new threads for each connection

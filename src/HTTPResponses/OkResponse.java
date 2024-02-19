@@ -1,3 +1,5 @@
+package HTTPResponses;
+
 /**
  * Represents an HTTP response with a status code of 200 (OK).
  * In case everything is okay.

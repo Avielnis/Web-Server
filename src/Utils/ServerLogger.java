@@ -1,15 +1,16 @@
+package Utils;
+
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import java.util.logging.FileHandler;
-import java.util.logging.SimpleFormatter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
-public class MyLogger {
-    public static final Logger logger = Logger.getLogger(TCPServer.class.getName());
+public class ServerLogger {
+    public static final Logger logger = Logger.getLogger("TCPServer");
 
     static {
         try {

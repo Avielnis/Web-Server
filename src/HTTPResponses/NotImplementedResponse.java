@@ -1,16 +1,17 @@
-/**
- * Represents an HTTP response with a status code of 404 (Not Found).
- * If the file was not found.
- */
-public class NotFoundResponse extends HttpResponse {
+package HTTPResponses;
 
-    private static final String HTML_404_PAGE =
+/**
+ * Represents an HTTP response with a status code of 501 (Not Implemented).
+ * If the method used is unknown
+ */
+public class NotImplementedResponse extends HttpResponse {
+    private static final String HTML_501_PAGE =
             "<!DOCTYPE html>\n" +
                     "<html lang=\"en\">\n" +
                     "<head>\n" +
                     "    <meta charset=\"UTF-8\">\n" +
                     "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
-                    "    <title>404 - Not Found</title>\n" +
+                    "    <title>501 - Not Implemented</title>\n" +
                     "    <style>\n" +
                     "        body {\n" +
                     "            font-family: Arial, sans-serif;\n" +
@@ -51,15 +52,15 @@ public class NotFoundResponse extends HttpResponse {
                     "</head>\n" +
                     "<body>\n" +
                     "    <div class=\"container\">\n" +
-                    "        <h1>404 - Not Found</h1>\n" +
-                    "        <p>The page you are looking for could not be found.</p>\n" +
+                    "        <h1>501 - Not Implemented</h1>\n" +
+                    "        <p>The requested functionality is not implemented on this server.</p>\n" +
                     "        <p>Return to the <a href=\"/\">home page</a>.</p>\n" +
                     "    </div>\n" +
                     "</body>\n" +
                     "</html>";
 
-    public NotFoundResponse() {
-        super(404, "Not Found", HTML_404_PAGE.getBytes());
+    public NotImplementedResponse() {
+        super(501, "Not Implemented", HTML_501_PAGE.getBytes());
         this.contentType = "text/html";
     }
 }

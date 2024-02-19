@@ -1,7 +1,7 @@
 #!/bin/bash
 
-src_dir="Sources"
-out_dir="out"
+src_dir="src"
+out_dir="out_dir"
 
 mkdir -p "$out_dir"
 

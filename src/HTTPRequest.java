@@ -1,6 +1,8 @@
+import Utils.ServerConfig;
+import Utils.ServerLogger;
+
 import java.io.UnsupportedEncodingException;
 import java.net.HttpRetryException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,7 +34,7 @@ public class HTTPRequest {
         String[] firstLineParts = lines[0].split(" ");
         httpVersion = firstLineParts[firstLineParts.length - 1];
         if (! httpVersion.equals("HTTP/1.0") && ! httpVersion.equals("HTTP/1.1")) {
-            MyLogger.logger.severe("HTTP version is not 1.0 or 1.1 for request: " + requestHeader);
+            ServerLogger.logger.severe("HTTP version is not 1.0 or 1.1 for request: " + requestHeader);
             throw new HttpRetryException("HTTP version is not 1.0 or 1.1", 500);
         }
 

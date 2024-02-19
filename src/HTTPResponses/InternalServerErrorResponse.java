@@ -1,15 +1,17 @@
+package HTTPResponses;
+
 /**
- * Represents an HTTP response with a status code of 501 (Not Implemented).
- * If the method used is unknown
+ * Represents an HTTP response with a status code of 500 (Internal Server Error).
+ * Some kind of error.
  */
-public class NotImplementedResponse extends HttpResponse {
-    private static final String HTML_501_PAGE =
+public class InternalServerErrorResponse extends HttpResponse {
+    private static final String HTML_500_PAGE =
             "<!DOCTYPE html>\n" +
                     "<html lang=\"en\">\n" +
                     "<head>\n" +
                     "    <meta charset=\"UTF-8\">\n" +
                     "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
-                    "    <title>501 - Not Implemented</title>\n" +
+                    "    <title>500 - Internal Server Error</title>\n" +
                     "    <style>\n" +
                     "        body {\n" +
                     "            font-family: Arial, sans-serif;\n" +
@@ -50,15 +52,14 @@ public class NotImplementedResponse extends HttpResponse {
                     "</head>\n" +
                     "<body>\n" +
                     "    <div class=\"container\">\n" +
-                    "        <h1>501 - Not Implemented</h1>\n" +
-                    "        <p>The requested functionality is not implemented on this server.</p>\n" +
+                    "        <h1>500 - Internal Server Error</h1>\n" +
                     "        <p>Return to the <a href=\"/\">home page</a>.</p>\n" +
                     "    </div>\n" +
                     "</body>\n" +
                     "</html>";
 
-    public NotImplementedResponse() {
-        super(501, "Not Implemented", HTML_501_PAGE.getBytes());
+    public InternalServerErrorResponse() {
+        super(500, "Internal Server Error", HTML_500_PAGE.getBytes());
         this.contentType = "text/html";
     }
 }
