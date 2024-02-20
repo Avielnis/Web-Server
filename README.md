@@ -3,6 +3,11 @@
 ## Description
 This project is a Java-based multi-threaded TCP web server. It handles HTTP requests and responses over TCP connections, providing a lightweight framework for developing web applications or services.
 
+<div style="display: flex;">
+  <img src="assets/image1.png" alt="HomePage" width="500" height="300">
+  <img src="assets/image2.png" alt="ServerLogs" height="300">
+</div>
+
 ## Features
 - Multi-threaded processing for concurrent request handling.
 - Basic HTTP request and response handling.
